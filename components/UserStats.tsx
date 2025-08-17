@@ -62,6 +62,7 @@ interface UserStats {
     claimsToday: number;
     remainingClaims: number;
     totalRewardsClaimed: number;
+    lastGiftBoxUpdate?: string | null;
   };
 }
 
@@ -268,20 +269,32 @@ export default function UserStats() {
       
       if (statsResult.success) {
         const data = statsResult.data;
-        const correctedRemaining = Math.max(0, 5 - (data.dailyMintCount || 0));
         
         // Get gift box stats from the response
         const giftBoxStats = giftBoxResult.success ? giftBoxResult.stats : null;
         
-        // Update gift box stats with current remaining claims
-        if (giftBoxStats && giftBoxCheck.success) {
-          giftBoxStats.claimsToday = giftBoxCheck.claimsToday || 0;
-          giftBoxStats.remainingClaims = giftBoxCheck.remainingClaims || 5;
+        // Calculate remaining claims based on giftBoxClaimsInPeriod from gameScore
+        let remainingClaims = 5;
+        let claimsToday = 0;
+        let lastGiftBoxUpdate = null;
+        
+        if (giftBoxCheck.success && giftBoxCheck.gameScore) {
+          const giftBoxClaimsInPeriod = giftBoxCheck.gameScore.giftBoxClaimsInPeriod || 0;
+          remainingClaims = Math.max(0, 5 - giftBoxClaimsInPeriod);
+          claimsToday = giftBoxClaimsInPeriod;
+          lastGiftBoxUpdate = giftBoxCheck.gameScore.lastGiftBoxUpdate;
+        }
+        
+        // Update gift box stats with calculated values
+        if (giftBoxStats) {
+          giftBoxStats.claimsToday = claimsToday;
+          giftBoxStats.remainingClaims = remainingClaims;
+          giftBoxStats.lastGiftBoxUpdate = lastGiftBoxUpdate;
         }
         
         setStats({
           ...data,
-          dailyMintsRemaining: correctedRemaining,
+          dailyMintsRemaining: Math.max(0, 5 - (data.dailyMintCount || 0)),
           giftBoxStats
         });
       }
@@ -427,7 +440,7 @@ export default function UserStats() {
               ★
             </div>
           ))}
-        </div>
+            </div>
         
         <div className="relative z-10 px-6 pb-24">
           {/* Header Skeleton */}
@@ -441,8 +454,8 @@ export default function UserStats() {
               {/* Profile Picture Skeleton */}
               <div className="relative mr-4">
                 <div className="w-20 h-20 rounded-xl bg-gradient-to-r from-gray-700 to-gray-600 animate-pulse"></div>
-              </div>
-              
+        </div>
+        
               <div className="flex-grow">
                 {/* Welcome Text Skeleton */}
                 <div className="h-6 bg-gradient-to-r from-gray-700 to-gray-600 rounded mb-4 w-64 animate-pulse"></div>
@@ -472,12 +485,12 @@ export default function UserStats() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-8 h-8 border border-[#00FFAA] bg-gradient-to-r from-gray-700 to-gray-600 rounded animate-pulse"></div>
                   <div className="w-12 h-4 bg-gradient-to-r from-gray-700 to-gray-600 rounded animate-pulse"></div>
-                </div>
+          </div>
                 <div className="h-8 bg-gradient-to-r from-gray-700 to-gray-600 rounded mb-1 animate-pulse"></div>
                 <div className="h-4 bg-gradient-to-r from-gray-700 to-gray-600 rounded w-3/4 animate-pulse"></div>
                 <div className="absolute -bottom-1 -right-1 w-12 h-[1px] bg-[#00FFAA]/30" />
                 <div className="absolute -bottom-1 -right-1 h-12 w-[1px] bg-[#00FFAA]/30" />
-              </div>
+            </div>
             ))}
           </motion.div>
 
@@ -496,7 +509,7 @@ export default function UserStats() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-8 h-8 border border-[#00FFAA] bg-gradient-to-r from-gray-700 to-gray-600 rounded animate-pulse"></div>
                   <div className="w-12 h-4 bg-gradient-to-r from-gray-700 to-gray-600 rounded animate-pulse"></div>
-                </div>
+          </div>
                 <div className="h-8 bg-gradient-to-r from-gray-700 to-gray-600 rounded mb-1 animate-pulse"></div>
                 <div className="h-4 bg-gradient-to-r from-gray-700 to-gray-600 rounded w-3/4 animate-pulse"></div>
                 <div className="absolute -bottom-1 -right-1 w-12 h-[1px] bg-[#00FFAA]/30" />
@@ -521,8 +534,8 @@ export default function UserStats() {
               <div className="flex-grow">
                 <div className="h-6 bg-gradient-to-r from-gray-700 to-gray-600 rounded w-48 mb-2 animate-pulse"></div>
                 <div className="h-[1px] w-full bg-gradient-to-r from-[#00FFAA]/50 to-transparent"></div>
-              </div>
-            </div>
+          </div>
+        </div>
 
             <div className="grid grid-cols-3 gap-4">
               {[...Array(3)].map((_, i) => (
@@ -530,9 +543,9 @@ export default function UserStats() {
                   <div className="w-8 h-8 mx-auto mb-1 bg-gradient-to-r from-gray-700 to-gray-600 rounded animate-pulse"></div>
                   <div className="h-3 bg-gradient-to-r from-gray-700 to-gray-600 rounded w-12 mx-auto mb-2 animate-pulse"></div>
                   <div className="h-6 bg-gradient-to-r from-gray-700 to-gray-600 rounded w-16 mx-auto animate-pulse"></div>
-                </div>
-              ))}
-            </div>
+              </div>
+            ))}
+          </div>
           </motion.div>
         </div>
 
@@ -579,7 +592,7 @@ export default function UserStats() {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden" style={{ background: 'linear-gradient(180deg, #001122 0%, #f9f7f4 100%)' }}>
+    <div className="min-h-screen overflow-hidden" style={{ background: 'linear-gradient(180deg, #001122 0%, #001122 90%, #f9f7f4 100%)' }}>
       {/* Animated Stars Background - Same as home page */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Stars */}
@@ -632,11 +645,11 @@ export default function UserStats() {
       </div>
       
       <div className="relative z-10 px-6 pb-24">
-        {/* Header with User Profile */}
-        <motion.div 
+      {/* Header with User Profile */}
+      <motion.div 
           className="pt-12 pb-8"
           initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
+        animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, type: "spring" }}
         >
           <div className="flex items-center mb-8">
@@ -647,17 +660,17 @@ export default function UserStats() {
             >
               <div className="w-20 h-20 relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00FFAA] to-[#0088FF] rounded-xl blur-lg opacity-40 animate-pulse"></div>
-                {context?.user?.pfpUrl ? (
-                  <img 
-                    src={context.user.pfpUrl} 
-                    alt="Profile" 
+          {context?.user?.pfpUrl ? (
+            <img 
+              src={context.user.pfpUrl} 
+              alt="Profile" 
                     className="relative w-20 h-20 rounded-xl shadow-lg border-2 border-[#00FFAA]/30 object-cover"
-                  />
-                ) : (
+            />
+          ) : (
                   <div className="relative w-20 h-20 rounded-xl shadow-lg border-2 border-[#00FFAA]/30 bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center">
-                    <FontAwesomeIcon icon={faUser} className="text-2xl text-white" />
-                  </div>
-                )}
+              <FontAwesomeIcon icon={faUser} className="text-2xl text-white" />
+            </div>
+          )}
               </div>
             </motion.div>
             
@@ -698,11 +711,11 @@ export default function UserStats() {
                  {/* Debug button (remove in production) */}
                 
               </div>
-            </div>
           </div>
-        </motion.div>
+        </div>
+      </motion.div>
 
-        {/* Stats Overview Cards */}
+      {/* Stats Overview Cards */}
         <motion.div 
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
           initial={{ opacity: 0, y: 30 }}
@@ -745,7 +758,7 @@ export default function UserStats() {
         </motion.div>
 
         {/* Additional Stats Cards */}
-        <motion.div 
+          <motion.div 
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -788,90 +801,113 @@ export default function UserStats() {
                  {/* Debug Info (remove in production) */}
        
 
-         {/* Daily Gift Box Status */}
+      {/* Daily Gift Box Status */}
          {stats.giftBoxStats && (
-           <motion.div 
+      <motion.div 
              className="border border-[#00FFAA]/40 backdrop-blur-sm p-6 text-white mb-8"
              style={{
                background: 'rgba(255, 255, 255, 0.05)',
                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
              }}
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
              transition={{ delay: 0.5, duration: 0.6 }}
            >
              <div className="flex items-center mb-6">
                <div className="w-10 h-10 border border-[#00FFAA] flex items-center justify-center mr-4">
                  <span className="text-[#00FFAA] text-xl">🎁</span>
-               </div>
+        </div>
                <div className="flex-grow">
                  <h3 className="text-lg font-bold text-[#00FFAA] uppercase tracking-wider">Daily Gift Box Status</h3>
                  <div className="h-[1px] w-full bg-gradient-to-r from-[#00FFAA]/50 to-transparent mt-1"></div>
-               </div>
-             </div>
-
+          </div>
+        </div>
+        
              {/* Daily Status Cards */}
              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                <div className="text-center p-4 border border-[#00FFAA]/20 bg-black/30">
                  <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
                    <FontAwesomeIcon icon={faCalendarDay} className="text-[#00FFAA] text-xl" />
-                 </div>
+          </div>
                  <p className="text-xs text-[#00FFAA] uppercase tracking-wider">Claims Today</p>
                  <p className="text-2xl font-bold text-white">{stats.giftBoxStats.claimsToday}</p>
-                 <p className="text-xs text-white/60">/ 4 per 12h</p>
-               </div>
-               
+                 <p className="text-xs text-white/60">/ 5 per period</p>
+        </div>
+        
                <div className="text-center p-4 border border-[#00FFAA]/20 bg-black/30">
                  <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
                    <FontAwesomeIcon icon={faCheckCircle} className="text-[#00FFAA] text-xl" />
-                 </div>
+            </div>
                  <p className="text-xs text-[#00FFAA] uppercase tracking-wider">Remaining</p>
                  <p className="text-2xl font-bold text-white">{stats.giftBoxStats.remainingClaims}</p>
                  <p className="text-xs text-white/60">boxes left</p>
-               </div>
+                 
+                 {/* Progress Bar */}
+                 <div className="mt-3">
+                   <div className="w-full bg-black/50 rounded-full h-2 border border-[#00FFAA]/20">
+                     <div 
+                       className="bg-gradient-to-r from-[#00FFAA] to-[#0088FF] h-2 rounded-full transition-all duration-500"
+                       style={{ width: `${(stats.giftBoxStats.remainingClaims / 5) * 100}%` }}
+                     ></div>
+                   </div>
+                 </div>
+            </div>
                
                <div className="text-center p-4 border border-[#00FFAA]/20 bg-black/30">
                  <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
                    <FontAwesomeIcon icon={faHistory} className="text-[#00FFAA] text-xl" />
-                 </div>
+          </div>
                  <p className="text-xs text-[#00FFAA] uppercase tracking-wider">Total Claims</p>
                  <p className="text-2xl font-bold text-white">{stats.giftBoxStats.totalClaims}</p>
                  <p className="text-xs text-white/60">all time</p>
-               </div>
-             </div>
+            </div>
+            </div>
+
+            {/* Reset Time Information */}
+            {stats.giftBoxStats.lastGiftBoxUpdate && (
+              <div className="mb-6 p-4 border border-[#00FFAA]/20 bg-black/30 rounded-lg">
+                <div className="flex items-center justify-center mb-2">
+                  <FontAwesomeIcon icon={faRefresh} className="text-[#00FFAA] mr-2" />
+                  <span className="text-sm text-[#00FFAA] font-medium">Next Reset</span>
+                </div>
+                <p className="text-center text-white/80 text-sm">
+                  {new Date(stats.giftBoxStats.lastGiftBoxUpdate).toLocaleString()}
+                </p>
+              </div>
+            )}
 
              {/* Token Rewards Summary */}
              <div className="border-t border-[#00FFAA]/20 pt-4">
                <h4 className="text-sm font-bold text-[#00FFAA] uppercase tracking-wider mb-3">Total Rewards Collected</h4>
                <div className="grid grid-cols-3 gap-4">
                  <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
-                   <div className="w-8 h-8 mx-auto mb-1">
-                     <img src="/candy/1.png" alt="ARB" className="w-full h-full object-contain" />
-                   </div>
+              <div className="w-8 h-8 mx-auto mb-1">
+                <img src="/candy/1.png" alt="ARB" className="w-full h-full object-contain" />
+              </div>
                    <p className="text-xs text-[#00FFAA]">ARB</p>
                    <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalArb.toFixed(2)}</p>
-                 </div>
+            </div>
                  <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
-                   <div className="w-8 h-8 mx-auto mb-1">
-                     <img src="/candy/2.png" alt="PEPE" className="w-full h-full object-contain" />
-                   </div>
+              <div className="w-8 h-8 mx-auto mb-1">
+                <img src="/candy/2.png" alt="PEPE" className="w-full h-full object-contain" />
+              </div>
                    <p className="text-xs text-[#00FFAA]">PEPE</p>
                    <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalPepe.toLocaleString()}</p>
-                 </div>
+            </div>
                  <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
-                   <div className="w-8 h-8 mx-auto mb-1">
-                     <img src="/candy/player.png" alt="BOOP" className="w-full h-full object-contain" />
-                   </div>
+              <div className="w-8 h-8 mx-auto mb-1">
+                <img src="/candy/player.png" alt="BOOP" className="w-full h-full object-contain" />
+              </div>
                    <p className="text-xs text-[#00FFAA]">BOOP</p>
                    <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalBoop.toLocaleString()}</p>
-                 </div>
-               </div>
+            </div>
+          </div>
              </div>
 
              <div className="absolute top-0 right-0 w-10 h-[1px] bg-[#00FFAA]/30" />
              <div className="absolute top-0 right-0 h-10 w-[1px] bg-[#00FFAA]/30" />
-           </motion.div>
-         )}
+        </motion.div>
+      )}
 
       {/* Same animations as home page */}
       <style jsx>{`
@@ -899,8 +935,8 @@ export default function UserStats() {
           }
         }
       `}</style>
-      </div>
-    </div>
+        </div>
+          </div>
   );
 }
 
@@ -922,20 +958,20 @@ const StatsCard = ({
   progressValue?: number;
   maxProgress?: number;
 }) => (
-  <motion.div
+              <motion.div 
     className="relative overflow-hidden border border-[#00FFAA]/30 bg-black/20 p-4 text-white backdrop-blur-sm"
     whileHover={{ borderColor: "rgba(0, 255, 170, 0.5)", backgroundColor: "rgba(0, 255, 170, 0.05)" }}
-    transition={{ type: "spring", stiffness: 300 }}
-  >
+                transition={{ type: "spring", stiffness: 300 }}
+              >
     <div className="relative z-10">
       <div className="flex items-center justify-between mb-3">
         <div className="w-8 h-8 border border-[#00FFAA] flex items-center justify-center">
           <FontAwesomeIcon icon={icon} className="text-[#00FFAA] text-sm" />
-        </div>
+                  </div>
         <span className="text-xs font-medium text-[#00FFAA] uppercase tracking-wider">
           {trend}
-        </span>
-      </div>
+                  </span>
+          </div>
       <div className="text-2xl font-light mb-1 text-white">{value}</div>
       <div className="text-xs text-white/60 uppercase tracking-wider">{title}</div>
       
@@ -945,19 +981,19 @@ const StatsCard = ({
           <div className="flex justify-between text-xs text-white/60 mb-1">
             <span>0</span>
             <span>{maxProgress}</span>
-          </div>
+        </div>
           <div className="w-full bg-white/10 rounded-full h-2">
-            <motion.div
+            <motion.div 
               className="bg-gradient-to-r from-[#00FFAA] to-[#0088FF] h-2 rounded-full"
               initial={{ width: 0 }}
               animate={{ width: `${(progressValue / maxProgress) * 100}%` }}
               transition={{ duration: 0.8, ease: "easeOut" }}
             />
-          </div>
-        </div>
+                </div>
+                </div>
       )}
-    </div>
+              </div>
     <div className="absolute -bottom-1 -right-1 w-12 h-[1px] bg-[#00FFAA]/30" />
     <div className="absolute -bottom-1 -right-1 h-12 w-[1px] bg-[#00FFAA]/30" />
-  </motion.div>
-);
+            </motion.div>
+  );

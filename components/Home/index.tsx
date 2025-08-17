@@ -193,7 +193,7 @@ export function Demo() {
       actions?.addFrame()
     }
   },[isConnected])
-  
+
   // Fetch token transaction count from blockchain
   const fetchTokenTransactionCount = async () => {
     try {
@@ -588,13 +588,13 @@ export function Demo() {
               >
                 <div className="w-20 h-20 relative">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#00FFAA] to-[#0088FF] rounded-xl blur-lg opacity-40 animate-pulse"></div>
-                  <img 
-                    src="/images/icon.png" 
+                <img 
+                  src="/images/icon.png" 
                     alt="WAGMI Blaster" 
                     className="relative w-20 h-20 rounded-xl shadow-lg border-2 border-[#00FFAA]/30 object-cover"
                   />
                 </div>
-              </motion.div>
+                </motion.div>
               <div className="ml-4 flex-grow">
                 <div className="h-[1px] w-full bg-gradient-to-r from-[#00FFAA] to-transparent"></div>
               </div>
@@ -638,7 +638,7 @@ export function Demo() {
                   boxShadow: "0 10px 25px -5px rgba(168, 85, 247, 0.4), 0 0 25px rgba(217, 70, 219, 0.2)"
                 }}
                 whileTap={isStartingStoneShooter ? {} : { scale: 0.97 }}
-                style={{
+                style={{ 
                   boxShadow: '0 8px 20px -5px rgba(168, 85, 247, 0.3), 0 0 15px rgba(217, 70, 219, 0.15)'
                 }}
               >
@@ -714,7 +714,7 @@ export function Demo() {
                 <div className="flex items-center">
                   <div className="w-6 h-6 border border-[#00FFAA] flex items-center justify-center mr-4">
                     <FontAwesomeIcon icon={faBolt} className="text-[#00FFAA] text-xs" />
-                  </div>
+                </div>
                   <span className="font-medium tracking-wider text-[#00FFAA]">CONNECT WALLET</span>
                 </div>
                 <div className="flex items-center">
@@ -739,7 +739,7 @@ export function Demo() {
             <StatsCard 
               icon={faUsers} 
               title="Active Players" 
-              value="102K" 
+              value="102" 
               trend="+23%" 
               color="from-cyan-400 via-blue-500 to-purple-600"
             />
@@ -764,6 +764,44 @@ export function Demo() {
               trend="Live" 
               color="from-green-400 via-cyan-400 to-purple-500"
             />
+          </motion.div>
+
+          {/* More Info Button */}
+          <motion.div 
+            className="flex justify-center mt-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4, duration: 0.6 }}
+          >
+            <button
+              onClick={() => setShowRewardPopup(true)}
+              style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                border: '2px solid rgba(255,255,255,0.2)',
+                borderRadius: '15px',
+                padding: '12px 30px',
+                color: '#fff',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 8px 25px rgba(102, 126, 234, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 12px 35px rgba(102, 126, 234, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.3)';
+              }}
+            >
+              <span>ℹ️</span>
+              More Info
+            </button>
           </motion.div>
 
         </div>
@@ -815,25 +853,25 @@ export function Demo() {
           }}
           onClick={handleCloseRewardPopup}
         >
-                      <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                width: 'min(90vw, 500px)',
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: 'min(90vw, 500px)',
                 maxHeight: '85vh',
-                borderRadius: '20px',
+              borderRadius: '20px',
                 padding: '25px',
-                border: '1px solid rgba(255,255,255,0.2)',
-                backdropFilter: 'blur(20px)',
-                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.1))',
+              border: '1px solid rgba(255,255,255,0.2)',
+              backdropFilter: 'blur(20px)',
+              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.1))',
                 boxShadow: '0 25px 60px rgba(0,0,0,0.4)',
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column'
-              }}
-            >
+            }}
+          >
             {/* Close Button */}
             <button
               onClick={handleCloseRewardPopup}
@@ -896,7 +934,7 @@ export function Demo() {
                   <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
                     <span style={{ marginRight: '8px' }}>🎯</span>
                     <span><strong>Objective:</strong> Destroy falling stones to score points</span>
-                  </div>
+              </div>
                   <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
                     <span style={{ marginRight: '8px' }}>📱</span>
                     <span><strong>Touch Controls:</strong> Touch left/right sides of screen to move</span>
@@ -980,7 +1018,7 @@ export function Demo() {
                   </div>
                 </div>
               </div>
-
+              
               {/* Gift Box System Section */}
               <div style={{ 
                 background: 'rgba(255,255,255,0.1)', 
@@ -1122,17 +1160,17 @@ const StatsCard = ({ icon, title, value, trend, color }: {
         <div className="flex items-center">
           <div className="h-[1px] w-10 bg-[#00FFAA]/30 mr-2"></div>
           <span className="text-xs font-medium text-[#00FFAA] uppercase tracking-wider">
-            {value === "..." ? (
-              <div className="flex items-center gap-1">
+          {value === "..." ? (
+            <div className="flex items-center gap-1">
                 <div className="w-1 h-1 bg-[#00FFAA] rounded-full animate-pulse"></div>
                 <div className="w-1 h-1 bg-[#00FFAA] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
                 <div className="w-1 h-1 bg-[#00FFAA] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-              </div>
-            ) : (
-              trend
-            )}
-          </span>
-        </div>
+            </div>
+          ) : (
+            trend
+          )}
+        </span>
+      </div>
       </div>
       <div className="text-2xl font-light mb-1 text-white">
         {value === "..." ? (
@@ -1174,7 +1212,7 @@ const FeatureCard = ({ icon, title, description, gradient, delay }: {
       <div className="flex items-center mb-6">
         <div className="w-10 h-10 border border-[#00FFAA] flex items-center justify-center">
           <FontAwesomeIcon icon={icon} className="text-[#00FFAA]" />
-        </div>
+      </div>
         <div className="ml-4 flex-grow">
           <div className="h-[1px] w-full bg-gradient-to-r from-[#00FFAA]/50 to-transparent"></div>
         </div>
