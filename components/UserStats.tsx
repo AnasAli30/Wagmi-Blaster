@@ -265,24 +265,64 @@ export default function UserStats() {
       const giftBoxResult = await giftBoxResponse.json();
       const giftBoxCheck = await giftBoxCheckResponse.json();
       
+      console.log('Stats result:', statsResult);
+      console.log('Gift box result:', giftBoxResult);
       console.log('Gift box check result:', giftBoxCheck);
       
       if (statsResult.success) {
         const data = statsResult.data;
+        console.log('Stats data:', data);
         
         // Get gift box stats from the response
         const giftBoxStats = giftBoxResult.success ? giftBoxResult.stats : null;
+        console.log('Gift box stats from API:', giftBoxStats);
         
         // Calculate remaining claims based on giftBoxClaimsInPeriod from gameScore
         let remainingClaims = 5;
         let claimsToday = 0;
         let lastGiftBoxUpdate = null;
         
-        if (giftBoxCheck.success && giftBoxCheck.gameScore) {
+        console.log('Checking giftBoxCheck:', giftBoxCheck);
+        console.log('giftBoxCheck.success:', giftBoxCheck.success);
+        console.log('giftBoxCheck.gameScore:', giftBoxCheck.gameScore);
+        console.log('Stats data giftBoxClaimsInPeriod:', data.giftBoxClaimsInPeriod);
+        console.log('Stats data lastGiftBoxUpdate:', data.lastGiftBoxUpdate);
+        
+        // Check if data is in statsResult.data (your data structure)
+        if (data.giftBoxClaimsInPeriod !== undefined) {
+          const giftBoxClaimsInPeriod = data.giftBoxClaimsInPeriod || 0;
+          console.log('giftBoxClaimsInPeriod found in stats data:', giftBoxClaimsInPeriod);
+          claimsToday = giftBoxClaimsInPeriod; // Claims Today = giftBoxClaimsInPeriod
+          remainingClaims = Math.max(0, 5 - giftBoxClaimsInPeriod); // Remaining = 5 - giftBoxClaimsInPeriod
+          lastGiftBoxUpdate = data.lastGiftBoxUpdate;
+          console.log('Calculated from stats data - claimsToday:', claimsToday, 'remainingClaims:', remainingClaims);
+        }
+        // Check if data is directly in giftBoxCheck (current API response structure)
+        else if (giftBoxCheck.success && giftBoxCheck.claimsToday !== undefined) {
+          console.log('Using giftBoxCheck direct values');
+          claimsToday = giftBoxCheck.claimsToday; // Claims Today = claimsToday
+          remainingClaims = giftBoxCheck.remainingClaims; // Remaining = remainingClaims
+          
+          // Calculate next reset time: lastClaimTime + 12 hours
+          if (giftBoxCheck.lastClaimTime) {
+            const lastClaimTime = new Date(giftBoxCheck.lastClaimTime);
+            const nextResetTime = new Date(lastClaimTime.getTime() + (12 * 60 * 60 * 1000)); // Add 12 hours
+            lastGiftBoxUpdate = nextResetTime.toISOString();
+            console.log('Next reset time calculated:', nextResetTime.toISOString());
+          }
+          
+          console.log('Using giftBoxCheck values - claimsToday:', claimsToday, 'remainingClaims:', remainingClaims);
+        }
+        // Fallback to giftBoxCheck.gameScore if not found in stats data
+        else if (giftBoxCheck.success && giftBoxCheck.gameScore) {
           const giftBoxClaimsInPeriod = giftBoxCheck.gameScore.giftBoxClaimsInPeriod || 0;
-          remainingClaims = Math.max(0, 5 - giftBoxClaimsInPeriod);
-          claimsToday = giftBoxClaimsInPeriod;
+          console.log('giftBoxClaimsInPeriod found in giftBoxCheck.gameScore:', giftBoxClaimsInPeriod);
+          claimsToday = giftBoxClaimsInPeriod; // Claims Today = giftBoxClaimsInPeriod
+          remainingClaims = Math.max(0, 5 - giftBoxClaimsInPeriod); // Remaining = 5 - giftBoxClaimsInPeriod
           lastGiftBoxUpdate = giftBoxCheck.gameScore.lastGiftBoxUpdate;
+          console.log('Calculated from giftBoxCheck.gameScore - claimsToday:', claimsToday, 'remainingClaims:', remainingClaims);
+        } else {
+          console.log('No giftBoxClaimsInPeriod data found, using defaults');
         }
         
         // Update gift box stats with calculated values
@@ -871,7 +911,24 @@ export default function UserStats() {
                   <span className="text-sm text-[#00FFAA] font-medium">Next Reset</span>
                 </div>
                 <p className="text-center text-white/80 text-sm">
-                  {new Date(stats.giftBoxStats.lastGiftBoxUpdate).toLocaleString()}
+                  {(() => {
+                    const now = new Date();
+                    const resetTime = new Date(stats.giftBoxStats.lastGiftBoxUpdate);
+                    const timeDiff = resetTime.getTime() - now.getTime();
+                    
+                    if (timeDiff <= 0) {
+                      return "Available now!";
+                    }
+                    
+                    const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                    
+                    if (hours > 0) {
+                      return `${hours}h ${minutes}m remaining`;
+                    } else {
+                      return `${minutes}m remaining`;
+                    }
+                  })()}
                 </p>
               </div>
             )}
