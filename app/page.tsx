@@ -9,10 +9,10 @@ const frame = {
     title: 'Play WAGMI Blaster',
     action: {
       type: 'launch_frame',
-      name: 'WAGMI Blaster - meme WAGMI Game',
+      name: 'WAGMI Blaster',
       url: APP_URL,
       splashImageUrl: `${APP_URL}/images/splash.png`,
-      splashBackgroundColor: '#ff69b4',
+      splashBackgroundColor: '#000',
     },
   },
 }
