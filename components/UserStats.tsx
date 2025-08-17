@@ -770,17 +770,7 @@ export default function UserStats() {
         </motion.div>
 
                  {/* Debug Info (remove in production) */}
-         {debugInfo && (
-           <motion.div 
-             className="mb-4 p-4 bg-red-900/20 border border-red-500/30 rounded-lg"
-             initial={{ opacity: 0 }}
-             animate={{ opacity: 1 }}
-           >
-             <p className="text-red-400 text-sm">Debug: {debugInfo}</p>
-             <p className="text-red-400 text-sm">Local Best: {localBestScore}, From Scores: {localBestFromScores}</p>
-             <p className="text-red-400 text-sm">Local Games: {localGamesPlayed}, From Scores: {totalGamesFromScores}</p>
-           </motion.div>
-         )}
+       
 
          {/* Gift Box Stats */}
          {stats.giftBoxStats && (
