@@ -334,11 +334,11 @@ export default function UserStats() {
 
   if (!address) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(180deg, #001122 0%, #f9f7f4 100%)' }}>
         <div className="text-center space-y-4">
-          <div className="text-6xl mb-4">🔗</div>
-          <h2 className="text-2xl font-bold text-gray-800">Connect Your Wallet</h2>
-          <p className="text-gray-600">Please connect your wallet to view your stats</p>
+          <div className="text-6xl mb-4 text-white">🔗</div>
+          <h2 className="text-2xl font-bold text-white">Connect Your Wallet</h2>
+          <p className="text-white/70">Please connect your wallet to view your stats</p>
         </div>
       </div>
     );
@@ -384,11 +384,11 @@ export default function UserStats() {
 
   if (!stats) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(180deg, #001122 0%, #f9f7f4 100%)' }}>
         <div className="text-center space-y-4">
-          <div className="text-6xl mb-4">📊</div>
-          <h2 className="text-2xl font-bold text-gray-800">No Stats Available</h2>
-          <p className="text-gray-600">Start playing to generate your statistics!</p>
+          <div className="text-6xl mb-4 text-white">📊</div>
+          <h2 className="text-2xl font-bold text-white">No Stats Available</h2>
+          <p className="text-white/70">Start playing to generate your statistics!</p>
         </div>
       </div>
     );
@@ -478,9 +478,9 @@ export default function UserStats() {
             </motion.div>
             
             <div className="flex-grow">
-              <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight mb-2">
+              {/* <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight mb-2">
                 Player <span className="text-[#00FFAA]">Analytics</span>
-              </h1>
+              </h1> */}
               <p className="text-lg text-white/70 font-light mb-4">
                 Welcome back, <span className="text-[#00FFAA] font-normal">{context?.user?.username || 'Player'}</span>
               </p>
@@ -551,7 +551,7 @@ export default function UserStats() {
         {/* Gift Box Stats */}
         {stats.giftBoxStats && (
           <motion.div 
-            className="border border-[#00FFAA]/40 backdrop-blur-sm p-6 text-white mb-8"
+            className="border border-[#00FFAA]/40 backdrop-blur-sm p-6 text-white "
             style={{
               background: 'rgba(255, 255, 255, 0.05)',
               boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
@@ -565,31 +565,31 @@ export default function UserStats() {
                 <span className="text-[#00FFAA] text-xl">🎁</span>
               </div>
               <div className="flex-grow">
-                <h3 className="text-lg font-bold text-[#00FFAA] uppercase tracking-wider">Daily Gift Box Status</h3>
+                <h3 className="text-lg font-bold text-[#000000] uppercase tracking-wider">Daily Gift Box Status</h3>
                 <div className="h-[1px] w-full bg-gradient-to-r from-[#00FFAA]/50 to-transparent mt-1"></div>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/10">
+            <div className="grid grid-cols-3 gap-4 mb-8">
+              <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
                 <div className="w-8 h-8 mx-auto mb-1">
                   <img src="/candy/1.png" alt="ARB" className="w-full h-full object-contain" />
                 </div>
-                <p className="text-xs text-[#00FFAA]">ARB</p>
+                <p className="text-xs text-[#083828]">ARB</p>
                 <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalArb.toFixed(2)}</p>
               </div>
-              <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/10">
+              <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
                 <div className="w-8 h-8 mx-auto mb-1">
                   <img src="/candy/2.png" alt="PEPE" className="w-full h-full object-contain" />
                 </div>
-                <p className="text-xs text-[#00FFAA]">PEPE</p>
+                <p className="text-xs text-[#083828]">PEPE</p>
                 <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalPepe.toLocaleString()}</p>
               </div>
-              <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/10">
+              <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
                 <div className="w-8 h-8 mx-auto mb-1">
                   <img src="/candy/player.png" alt="BOOP" className="w-full h-full object-contain" />
                 </div>
-                <p className="text-xs text-[#00FFAA]">BOOP</p>
+                <p className="text-xs text-[#083828]">BOOP</p>
                 <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalBoop.toLocaleString()}</p>
               </div>
             </div>
