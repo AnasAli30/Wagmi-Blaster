@@ -3,11 +3,10 @@ import { APP_URL } from "../../../lib/constants";
 
 export async function GET() {
   const farcasterConfig = {
-    
       "accountAssociation": {
-        "header": "",
-        "payload": "",
-        "signature": ""
+        "header": "eyJmaWQiOjI0OTcwMiwidHlwZSI6ImF1dGgiLCJrZXkiOiIweGU2Q2ZkQWY3NGJGRUMwMEZhZmRFOTcyNEE0NmNiMDUyNTQ4Qzg0ODgifQ",
+        "payload": "eyJkb21haW4iOiJ3YWdtaS1ibGFzdGVyLnZlcmNlbC5hcHAifQ",
+        "signature": "MUW8qKxH1VNznYOLPzLq8CpYlcdUTlm6OlyLF4PKgklXfCskrc9B8QX8frS1hSMsLwOaqOQSX1sBkV/RbYYyfBw="
       },
     
     frame: {
