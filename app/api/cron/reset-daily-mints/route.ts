@@ -6,6 +6,9 @@ import { resetDailyMintStatus } from "@/lib/database";
 // that are not available in the Edge Runtime
 export const runtime = 'nodejs';
 
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 // This endpoint will be called automatically by Vercel cron
 export async function GET(request: NextRequest) {
   try {

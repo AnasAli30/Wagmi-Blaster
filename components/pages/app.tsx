@@ -51,7 +51,9 @@ export default function Home() {
             <div className="space-y-4">
               <button 
                 onClick={() => {
-                  window.open('https://farcaster.xyz/~/mini-apps/launch?domain=chain-crush-black.vercel.app', '_blank')
+                  if (typeof window !== 'undefined') {
+                    window.open('https://farcaster.xyz/~/mini-apps/launch?domain=chain-crush-black.vercel.app', '_blank')
+                  }
                 }}
                 className="w-full bg-gradient-to-r from-[#19adff] to-[#667eea] hover:from-[#1590d4] hover:to-[#5a67d8] text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-3"
               >

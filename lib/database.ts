@@ -84,11 +84,20 @@ export interface DailyGiftBoxCount {
 
 // Authentication key management functions
 export async function isAuthKeyUsed(fusedKey: string): Promise<boolean> {
-  const client = await clientPromise;
-  const db = client.db('bounce');
-  
-  const usedKey = await db.collection('usedAuthKeys').findOne({ fusedKey });
-  return !!usedKey;
+  try {
+    const client = await clientPromise;
+    if (!client) {
+      console.warn('MongoDB client not available');
+      return false;
+    }
+    const db = client.db('bounce');
+    
+    const usedKey = await db.collection('usedAuthKeys').findOne({ fusedKey });
+    return !!usedKey;
+  } catch (error) {
+    console.warn('Error checking auth key:', error);
+    return false;
+  }
 }
 
 export async function storeUsedAuthKey(authKeyData: Omit<UsedAuthKey, 'createdAt'>): Promise<void> {

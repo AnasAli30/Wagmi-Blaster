@@ -1,3 +1,5 @@
+'use client'
+
 import { useFrame } from '@/components/farcaster-provider'
 import { farcasterMiniApp as miniAppConnector } from '@farcaster/miniapp-wagmi-connector'
 import { parseEther } from 'viem'

@@ -33,3 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function Home() {
   return <App />
 }
+
+// Disable static generation for this page
+export const dynamic = 'force-dynamic'
+export const revalidate = 0

@@ -21,7 +21,17 @@ import UserStats from '../UserStats'
 import Leaderboard from '../Leaderboard'
 import { useConnect, useAccount, useContractWrite, useWaitForTransactionReceipt } from 'wagmi'
 import { motion, AnimatePresence } from 'framer-motion'
-import StoneShooterGame from './StoneShooterGame'
+import dynamic from 'next/dynamic'
+
+// Dynamically import StoneShooterGame to prevent SSR issues
+const StoneShooterGame = dynamic(() => import('./StoneShooterGame'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-screen">
+      <div className="text-white text-xl">Loading game...</div>
+    </div>
+  )
+})
 
 export function Demo() {
   const [showGame, setShowGame] = useState(false)
