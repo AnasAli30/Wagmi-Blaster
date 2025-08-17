@@ -258,7 +258,7 @@ export function UsersPage({ onBack }: UsersPageProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
           >
-            <StatsCard icon={faUsers} title="Total Players" value="1.6K" trend="+23%" />
+            <StatsCard icon={faUsers} title="Total Players" value="102" trend="+23%" />
             <StatsCard icon={faUserCheck} title="Online Now" value="347" trend="LIVE" />
             <StatsCard icon={faTrophy} title="Top Score" value="15.4K" trend="NEW" />
             <StatsCard icon={faCoins} title="Total Rewards" value="892 ARB" trend="+15%" />
