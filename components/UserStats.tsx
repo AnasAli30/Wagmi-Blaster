@@ -80,6 +80,7 @@ export default function UserStats() {
   const [localBestFromScores, setLocalBestFromScores] = useState<number>(0);
   const [totalGamesFromScores, setTotalGamesFromScores] = useState<number>(0);
   const [sharing, setSharing] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string>('');
 
   // Memoized star and shooting star data for stable animation
   const starData = useMemo(() =>
@@ -113,6 +114,7 @@ export default function UserStats() {
   const getBestScoreFromStorage = () => {
     if (typeof window !== 'undefined') {
       const storedScore = localStorage.getItem('candyBestScore');
+      console.log('Stored best score:', storedScore);
       if (storedScore) {
         const score = parseInt(storedScore, 10);
         if (!isNaN(score) && score > 0) {
@@ -128,6 +130,7 @@ export default function UserStats() {
   const getGamesPlayedFromStorage = () => {
     if (typeof window !== 'undefined') {
       const storedCount = localStorage.getItem('candyGamesPlayed');
+      console.log('Stored games played:', storedCount);
       if (storedCount) {
         const count = parseInt(storedCount, 10);
         if (!isNaN(count) && count >= 0) {
@@ -141,9 +144,18 @@ export default function UserStats() {
 
   // Get calculated stats from scores
   const getCalculatedStats = () => {
-    setLocalAverageScore(getAverageScore());
-    setLocalBestFromScores(getBestScore());
-    setTotalGamesFromScores(getTotalGamesFromScores());
+    const avgScore = getAverageScore();
+    const bestScore = getBestScore();
+    const totalGames = getTotalGamesFromScores();
+    
+    console.log('Calculated stats:', { avgScore, bestScore, totalGames });
+    
+    setLocalAverageScore(avgScore);
+    setLocalBestFromScores(bestScore);
+    setTotalGamesFromScores(totalGames);
+    
+    // Set debug info
+    setDebugInfo(`Avg: ${avgScore}, Best: ${bestScore}, Games: ${totalGames}`);
   };
 
   // Share stats function using Farcaster ComposerCast
@@ -291,6 +303,26 @@ export default function UserStats() {
     getGamesPlayedFromStorage(); // This is synchronous, so no need to await
     getCalculatedStats(); // This is synchronous, so no need to await
     setRefreshing(false);
+  };
+
+  // Debug function to add test data (remove in production)
+  const addTestData = () => {
+    if (typeof window !== 'undefined') {
+      // Add some test scores
+      const testScores = [1500, 2300, 1800, 3200, 2100, 2800, 1900, 2500];
+      localStorage.setItem('candyGameScores', JSON.stringify(testScores));
+      
+      // Set games played
+      localStorage.setItem('candyGamesPlayed', '8');
+      
+      // Set best score
+      localStorage.setItem('candyBestScore', '3200');
+      
+      // Refresh the stats
+      getBestScoreFromStorage();
+      getGamesPlayedFromStorage();
+      getCalculatedStats();
+    }
   };
 
   useEffect(() => {
@@ -497,19 +529,29 @@ export default function UserStats() {
                   <span className="text-sm">{refreshing ? 'REFRESHING...' : 'REFRESH'}</span>
                 </motion.button>
                 
-                <motion.button
-                  onClick={shareStats}
-                  disabled={sharing}
-                  className="bg-gradient-to-r from-purple-600 to-pink-500 text-white font-medium py-2 px-4 flex items-center space-x-2 hover:from-purple-700 hover:to-pink-600 transition-all duration-300"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="none">
-                    <rect width="256" height="256" rx="56" fill="#7C65C1"></rect>
-                    <path d="M183.296 71.68H211.968L207.872 94.208H200.704V180.224L201.02 180.232C204.266 180.396 206.848 183.081 206.848 186.368V191.488L207.164 191.496C210.41 191.66 212.992 194.345 212.992 197.632V202.752H155.648V197.632C155.648 194.345 158.229 191.66 161.476 191.496L161.792 191.488V186.368C161.792 183.081 164.373 180.396 167.62 180.232L167.936 180.224V138.24C167.936 116.184 150.056 98.304 128 98.304C105.944 98.304 88.0638 116.184 88.0638 138.24V180.224L88.3798 180.232C91.6262 180.396 94.2078 183.081 94.2078 186.368V191.488L94.5238 191.496C97.7702 191.66 100.352 194.345 100.352 197.632V202.752H43.0078V197.632C43.0078 194.345 45.5894 191.66 48.8358 191.496L49.1518 191.488V186.368C49.1518 183.081 51.7334 180.396 54.9798 180.232L55.2958 180.224V94.208H48.1278L44.0318 71.68H72.7038V54.272H183.296V71.68Z" fill="white"></path>
-                  </svg>
-                  <span className="text-sm">{sharing ? 'SHARING...' : 'SHARE'}</span>
-                </motion.button>
+                                 <motion.button
+                   onClick={shareStats}
+                   disabled={sharing}
+                   className="bg-gradient-to-r from-purple-600 to-pink-500 text-white font-medium py-2 px-4 flex items-center space-x-2 hover:from-purple-700 hover:to-pink-600 transition-all duration-300"
+                   whileHover={{ scale: 1.02 }}
+                   whileTap={{ scale: 0.98 }}
+                 >
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="none">
+                     <rect width="256" height="256" rx="56" fill="#7C65C1"></rect>
+                     <path d="M183.296 71.68H211.968L207.872 94.208H200.704V180.224L201.02 180.232C204.266 180.396 206.848 183.081 206.848 186.368V191.488L207.164 191.496C210.41 191.66 212.992 194.345 212.992 197.632V202.752H155.648V197.632C155.648 194.345 158.229 191.66 161.476 191.496L161.792 191.488V186.368C161.792 183.081 164.373 180.396 167.62 180.232L167.936 180.224V138.24C167.936 116.184 150.056 98.304 128 98.304C105.944 98.304 88.0638 116.184 88.0638 138.24V180.224L88.3798 180.232C91.6262 180.396 94.2078 183.081 94.2078 186.368V191.488L94.5238 191.496C97.7702 191.66 100.352 194.345 100.352 197.632V202.752H43.0078V197.632C43.0078 194.345 45.5894 191.66 48.8358 191.496L49.1518 191.488V186.368C49.1518 183.081 51.7334 180.396 54.9798 180.232L55.2958 180.224V94.208H48.1278L44.0318 71.68H72.7038V54.272H183.296V71.68Z" fill="white"></path>
+                   </svg>
+                   <span className="text-sm">{sharing ? 'SHARING...' : 'SHARE'}</span>
+                 </motion.button>
+                 
+                 {/* Debug button (remove in production) */}
+                 <motion.button
+                   onClick={addTestData}
+                   className="bg-red-600 text-white font-medium py-2 px-4 flex items-center space-x-2 hover:bg-red-700 transition-all duration-300"
+                   whileHover={{ scale: 1.02 }}
+                   whileTap={{ scale: 0.98 }}
+                 >
+                   <span className="text-sm">ADD TEST DATA</span>
+                 </motion.button>
               </div>
             </div>
           </div>
@@ -531,73 +573,113 @@ export default function UserStats() {
           <StatsCard 
             icon={faTrophy} 
             title="Best Score" 
-            value={Math.max(localBestScore || 0, localBestFromScores).toLocaleString() || '0'} 
+            value={Math.max(localBestScore || 0, localBestFromScores, stats.bestScore || 0).toLocaleString() || '0'} 
             trend="HIGH" 
           />
           <StatsCard 
             icon={faChartLine} 
             title="Games Played" 
-            value={localGamesPlayed.toString()} 
+            value={Math.max(localGamesPlayed, totalGamesFromScores).toString()} 
             trend="COUNT" 
           />
           <StatsCard 
             icon={faRocket} 
             title="Average Score" 
-            value={localAverageScore.toLocaleString() || '0'} 
+            value={localAverageScore > 0 ? localAverageScore.toLocaleString() : '0'} 
             trend="AVG" 
           />
         </motion.div>
 
-        {/* Gift Box Stats */}
-        {stats.giftBoxStats && (
-          <motion.div 
-            className="border border-[#00FFAA]/40 backdrop-blur-sm p-6 text-white "
-            style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
-            }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-          >
-            <div className="flex items-center mb-6">
-              <div className="w-10 h-10 border border-[#00FFAA] flex items-center justify-center mr-4">
-                <span className="text-[#00FFAA] text-xl">🎁</span>
-              </div>
-              <div className="flex-grow">
-                <h3 className="text-lg font-bold text-[#000000] uppercase tracking-wider">Daily Gift Box Status</h3>
-                <div className="h-[1px] w-full bg-gradient-to-r from-[#00FFAA]/50 to-transparent mt-1"></div>
-              </div>
-            </div>
+        {/* Additional Stats Cards */}
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.8 }}
+        >
+          <StatsCard 
+            icon={faCalendarDay} 
+            title="Current Season Score" 
+            value={stats.currentSeasonScore?.toLocaleString() || '0'} 
+            trend="SEASON" 
+          />
+          <StatsCard 
+            icon={faHistory} 
+            title="All Time High" 
+            value={stats.ath?.toLocaleString() || '0'} 
+            trend="ATH" 
+          />
+          <StatsCard 
+            icon={faUser} 
+            title="Player Level" 
+            value={stats.level?.toString() || '1'} 
+            trend="LEVEL" 
+          />
+        </motion.div>
 
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
-                <div className="w-8 h-8 mx-auto mb-1">
-                  <img src="/candy/1.png" alt="ARB" className="w-full h-full object-contain" />
-                </div>
-                <p className="text-xs text-[#083828]">ARB</p>
-                <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalArb.toFixed(2)}</p>
-              </div>
-              <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
-                <div className="w-8 h-8 mx-auto mb-1">
-                  <img src="/candy/2.png" alt="PEPE" className="w-full h-full object-contain" />
-                </div>
-                <p className="text-xs text-[#083828]">PEPE</p>
-                <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalPepe.toLocaleString()}</p>
-              </div>
-              <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
-                <div className="w-8 h-8 mx-auto mb-1">
-                  <img src="/candy/player.png" alt="BOOP" className="w-full h-full object-contain" />
-                </div>
-                <p className="text-xs text-[#083828]">BOOP</p>
-                <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalBoop.toLocaleString()}</p>
-              </div>
-            </div>
+                 {/* Debug Info (remove in production) */}
+         {debugInfo && (
+           <motion.div 
+             className="mb-4 p-4 bg-red-900/20 border border-red-500/30 rounded-lg"
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+           >
+             <p className="text-red-400 text-sm">Debug: {debugInfo}</p>
+             <p className="text-red-400 text-sm">Local Best: {localBestScore}, From Scores: {localBestFromScores}</p>
+             <p className="text-red-400 text-sm">Local Games: {localGamesPlayed}, From Scores: {totalGamesFromScores}</p>
+           </motion.div>
+         )}
 
-            <div className="absolute top-0 right-0 w-10 h-[1px] bg-[#00FFAA]/30" />
-            <div className="absolute top-0 right-0 h-10 w-[1px] bg-[#00FFAA]/30" />
-          </motion.div>
-        )}
+         {/* Gift Box Stats */}
+         {stats.giftBoxStats && (
+           <motion.div 
+             className="border border-[#00FFAA]/40 backdrop-blur-sm p-6 text-white mb-8"
+             style={{
+               background: 'rgba(255, 255, 255, 0.05)',
+               boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
+             }}
+             initial={{ opacity: 0, y: 20 }}
+             animate={{ opacity: 1, y: 0 }}
+             transition={{ delay: 0.5, duration: 0.6 }}
+           >
+             <div className="flex items-center mb-6">
+               <div className="w-10 h-10 border border-[#00FFAA] flex items-center justify-center mr-4">
+                 <span className="text-[#00FFAA] text-xl">🎁</span>
+               </div>
+               <div className="flex-grow">
+                 <h3 className="text-lg font-bold text-[#00FFAA] uppercase tracking-wider">Daily Gift Box Status</h3>
+                 <div className="h-[1px] w-full bg-gradient-to-r from-[#00FFAA]/50 to-transparent mt-1"></div>
+               </div>
+             </div>
+
+             <div className="grid grid-cols-3 gap-4 mb-8">
+               <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
+                 <div className="w-8 h-8 mx-auto mb-1">
+                   <img src="/candy/1.png" alt="ARB" className="w-full h-full object-contain" />
+                 </div>
+                 <p className="text-xs text-[#00FFAA]">ARB</p>
+                 <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalArb.toFixed(2)}</p>
+               </div>
+               <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
+                 <div className="w-8 h-8 mx-auto mb-1">
+                   <img src="/candy/2.png" alt="PEPE" className="w-full h-full object-contain" />
+                 </div>
+                 <p className="text-xs text-[#00FFAA]">PEPE</p>
+                 <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalPepe.toLocaleString()}</p>
+               </div>
+               <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
+                 <div className="w-8 h-8 mx-auto mb-1">
+                   <img src="/candy/player.png" alt="BOOP" className="w-full h-full object-contain" />
+                 </div>
+                 <p className="text-xs text-[#00FFAA]">BOOP</p>
+                 <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalBoop.toLocaleString()}</p>
+               </div>
+             </div>
+
+             <div className="absolute top-0 right-0 w-10 h-[1px] bg-[#00FFAA]/30" />
+             <div className="absolute top-0 right-0 h-10 w-[1px] bg-[#00FFAA]/30" />
+           </motion.div>
+         )}
 
       {/* Same animations as home page */}
       <style jsx>{`

@@ -47,11 +47,11 @@ export function Demo() {
   const { connect, connectors } = useConnect()
   const { isConnected, address } = useAccount()
   
-  // Blockchain contract write for starting Meme Coin Blaster game
+  // Blockchain contract write for starting WAGMI Blaster Blaster game
   const { writeContract: writeStartGame, data: startGameTx, isSuccess: startGameSuccess, isError: startGameContractError, error: startGameErrorObj, reset: resetStartGame } = useContractWrite();
   const { isLoading: isStartGameLoading, isSuccess: isStartGameSuccess } = useWaitForTransactionReceipt({ hash: startGameTx });
   
-  // Meme Coin Blaster game start state
+  // WAGMI Blaster Blaster game start state
   const [isStartingStoneShooter, setIsStartingStoneShooter] = useState(false);
   const [stoneShooterError, setStoneShooterError] = useState<string | null>(null);
   const [stoneShooterSuccess, setStoneShooterSuccess] = useState(false);
@@ -141,20 +141,20 @@ export function Demo() {
     }
   }
 
-  // Handle Meme Coin Blaster game start with blockchain transaction
+  // Handle WAGMI Blaster Blaster game start with blockchain transaction
   const handleStartStoneShooter1 = async() => {
     setShowStoneShooter(true);
   }
 
   const handleStartStoneShooter = async () => {
     if (!address) {
-      console.warn('No wallet address available for Meme Coin Blaster');
+      console.warn('No wallet address available for WAGMI Blaster Blaster');
       setStoneShooterError('Please connect your wallet first');
       return;
     }
 
     if (isStartingStoneShooter) {
-      console.log('🔄 Meme Coin Blaster transaction already in progress');
+      console.log('🔄 WAGMI Blaster Blaster transaction already in progress');
       return;
     }
 
@@ -177,13 +177,13 @@ export function Demo() {
         args: []
       });
 
-      console.log('✅ Meme Coin Blaster blockchain transaction initiated');
+      console.log('✅ WAGMI Blaster Blaster blockchain transaction initiated');
       
       // The transaction is now pending, the useEffect will handle success/failure
       
     } catch (error: any) {
-      console.error('Error starting Meme Coin Blaster game:', error);
-      setStoneShooterError(error.message || 'Failed to start Meme Coin Blaster game');
+      console.error('Error starting WAGMI Blaster Blaster game:', error);
+      setStoneShooterError(error.message || 'Failed to start WAGMI Blaster Blaster game');
       setIsStartingStoneShooter(false);
     }
   };
@@ -206,8 +206,8 @@ export function Demo() {
       // Get transaction count for the token contract
       const txCount = await provider.getTransactionCount(CONTRACT_ADDRESSES.TOKEN_REWARD)
       
-      // Add a multiplier to represent "meme coins hit" - each tx represents multiple coins
-      const memeCoinsHit = txCount * 25 // Each transaction hits approximately 25 meme coins
+      // Add a multiplier to represent "WAGMI Blasters hit" - each tx represents multiple coins
+      const memeCoinsHit = txCount * 25 // Each transaction hits approximately 25 WAGMI Blasters
       
       setTokenTxCount(memeCoinsHit)
       setIsLoadingTxCount(false)
@@ -227,16 +227,16 @@ export function Demo() {
     return () => clearInterval(intervalId)
   }, [])
 
-  // Handle successful Meme Coin Blaster blockchain transaction
+  // Handle successful WAGMI Blaster Blaster blockchain transaction
   useEffect(() => {
     if (isStartGameSuccess && isStartingStoneShooter && startGameTx) {
-      console.log('✅ Meme Coin Blaster blockchain transaction confirmed');
+      console.log('✅ WAGMI Blaster Blaster blockchain transaction confirmed');
       
       // Immediately start the game
-      console.log('🚀 Launching Meme Coin Blaster game...');
+      console.log('🚀 Launching WAGMI Blaster Blaster game...');
       incrementGamesPlayed();
       setShowStoneShooter(true);
-      console.log('✅ Meme Coin Blaster game state set to true');
+      console.log('✅ WAGMI Blaster Blaster game state set to true');
       
       // Hide the loader and reset transaction state
       setIsStartingStoneShooter(false);
@@ -245,10 +245,10 @@ export function Demo() {
     }
   }, [isStartGameSuccess, isStartingStoneShooter, startGameTx]);
 
-  // Handle Meme Coin Blaster blockchain transaction error
+  // Handle WAGMI Blaster Blaster blockchain transaction error
   useEffect(() => {
     if (startGameContractError && isStartingStoneShooter) {
-      console.error('❌ Meme Coin Blaster blockchain transaction failed:', startGameErrorObj);
+      console.error('❌ WAGMI Blaster Blaster blockchain transaction failed:', startGameErrorObj);
       setStoneShooterError(startGameErrorObj?.message || 'Blockchain transaction failed');
       setIsStartingStoneShooter(false);
       setStoneShooterSuccess(false);
@@ -256,13 +256,13 @@ export function Demo() {
     }
   }, [startGameContractError, startGameErrorObj, isStartingStoneShooter]);
 
-  // Reset wagmi state when returning from Meme Coin Blaster game
+  // Reset wagmi state when returning from WAGMI Blaster Blaster game
   useEffect(() => {
     // Only reset when we're on home page (not showing any game) and have a successful transaction
     // and we're not currently in an active transaction
     if (!showStoneShooter && !showGame && !showStats && !showLeaderboard && 
         (startGameSuccess || isStartGameSuccess) && !hasActiveTransaction) {
-      console.log('🔄 Resetting Meme Coin Blaster transaction state');
+      console.log('🔄 Resetting WAGMI Blaster Blaster transaction state');
       resetStartGame();
     }
   }, [showStoneShooter, showGame, showStats, showLeaderboard, startGameSuccess, isStartGameSuccess, hasActiveTransaction, resetStartGame]);
@@ -616,7 +616,7 @@ export function Demo() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.6 }}
               >
-                The ultimate <span className="text-[#00FFAA] font-normal">meme coin destruction</span> experience with epic rewards
+                The ultimate <span className="text-[#00FFAA] font-normal">WAGMI Blaster destruction</span> experience with epic rewards
               </motion.p>
             </motion.div>
           </motion.div>
@@ -657,7 +657,7 @@ export function Demo() {
                     <>
                       <FontAwesomeIcon icon={faRocket} className="text-2xl" />
                       <span className="font-bold text-xl">PLAY NOW</span>
-                      <span className="text-sm opacity-80">MEME COIN BLASTER</span>
+                      <span className="text-sm opacity-80">WAGMI Blaster BLASTER</span>
                     </>
                   )}
                 </div>
@@ -759,7 +759,7 @@ export function Demo() {
             />
             <StatsCard 
               icon={faBullseye} 
-              title="Meme Coins Hit"
+              title="WAGMI Blasters Hit"
               value={isLoadingTxCount ? "Loading..." : tokenTxCount ? tokenTxCount.toLocaleString() : "0"} 
               trend="Live" 
               color="from-green-400 via-cyan-400 to-purple-500"
@@ -779,15 +779,15 @@ export function Demo() {
         >
           <FeatureCard
             icon={faBullseye}
-            title="Meme Coin Shooter"
-            description="Blast through waves of meme coins in this epic space shooter. Destroy coins, collect power-ups, and earn rewards!"
+            title="WAGMI Blaster Shooter"
+            description="Blast through waves of WAGMI Blasters in this epic space shooter. Destroy coins, collect power-ups, and earn rewards!"
             gradient="from-green-400 to-emerald-600"
             delay={0}
           />
           <FeatureCard
             icon={faCoins}
             title="Earn Rewards"
-            description="Every meme coin you destroy earns you points and ARB tokens. Compete for the ultimate prize pool!"
+            description="Every WAGMI Blaster you destroy earns you points and ARB tokens. Compete for the ultimate prize pool!"
             gradient="from-purple-400 to-indigo-600"
             delay={0.2}
           />
@@ -856,10 +856,10 @@ export function Demo() {
             {/* Content */}
             <div style={{ textAlign: 'center', color: '#fff',display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center" }}>
               <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '15px' }}>
-                Welcome to Meme Coin Blaster!
+                Welcome to WAGMI Blaster Blaster!
               </h2>
               <p style={{ fontSize: '16px', opacity: 0.9, marginBottom: '5px', lineHeight: '1.5' }}>
-                Get ready for epic gaming rewards! Play Meme Coin Blaster daily 
+                Get ready for epic gaming rewards! Play WAGMI Blaster Blaster daily 
               </p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '5px' }}>
                 <img src="/candy/1.png" alt="" style={{width:"40px",height:"40px"}} />

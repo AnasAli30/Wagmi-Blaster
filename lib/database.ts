@@ -973,27 +973,27 @@ export async function generateGiftBoxReward(): Promise<{
   tokenType: 'arb' | 'pepe' | 'boop' | 'none';
   amount: number;
 }> {
-  // 25% chance of "better luck next time"
+  // 50% chance of "better luck next time"
   const random = Math.random();
   
-  if (random < 0.25) {
+  if (random < 0.5) {
     return { tokenType: 'none', amount: 0 };
   }
   
-  // 75% chance of getting a token
+  // 50% chance of getting a token
   const tokenRandom = Math.random();
   
   if (tokenRandom < 0.33) {
-    // ARB: 0.1 - 0.3
-    const arbAmount = 0.1 + (Math.random() * 0.2);
+    // ARB: 0.05 - 0.15 (halved from 0.1 - 0.3)
+    const arbAmount = 0.05 + (Math.random() * 0.1);
     return { tokenType: 'arb', amount: parseFloat(arbAmount.toFixed(6)) };
   } else if (tokenRandom < 0.66) {
-    // PEPE: 8946 - 27115
-    const pepeAmount = 8946 + Math.floor(Math.random() * (27115 - 8946 + 1));
+    // PEPE: 4473 - 13557 (halved from 8946 - 27115)
+    const pepeAmount = 4473 + Math.floor(Math.random() * (13557 - 4473 + 1));
     return { tokenType: 'pepe', amount: pepeAmount };
   } else {
-    // BOOP: 2847 - 4000
-    const boopAmount = 2847 + Math.floor(Math.random() * (4000 - 2847 + 1));
+    // BOOP: 1423 - 2000 (halved from 2847 - 4000)
+    const boopAmount = 1423 + Math.floor(Math.random() * (2000 - 1423 + 1));
     return { tokenType: 'boop', amount: boopAmount };
   }
 }
