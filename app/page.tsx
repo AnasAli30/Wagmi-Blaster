@@ -11,7 +11,7 @@ const frame = {
       type: 'launch_frame',
       name: 'WAGMI Blaster',
       url: APP_URL,
-      splashImageUrl: `${APP_URL}/images/splash.png`,
+      splashImageUrl: `${APP_URL}/images/splash.jpg`,
       splashBackgroundColor: '#000',
     },
   },

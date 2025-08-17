@@ -19,7 +19,7 @@ export async function GET() {
       tags: ["arbitrum", "farcaster", "miniapp", "games"],
       primaryCategory: "games",
       buttonTitle: "Play Now",
-      splashImageUrl: `${APP_URL}/images/splash.png`,
+      splashImageUrl: `${APP_URL}/images/splash.jpg`,
       splashBackgroundColor: "#000000",
       webhookUrl: `${APP_URL}/api/webhook`,
       subtitle: "Chain Crush",
