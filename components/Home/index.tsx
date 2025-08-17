@@ -815,65 +815,146 @@ export function Demo() {
           }}
           onClick={handleCloseRewardPopup}
         >
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              width: 'min(90vw, 500px)',
-              borderRadius: '20px',
-              padding: '30px',
-              border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(20px)',
-              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.1))',
-              boxShadow: '0 25px 60px rgba(0,0,0,0.4)'
-            }}
-          >
+                      <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: 'min(90vw, 500px)',
+                maxHeight: '85vh',
+                borderRadius: '20px',
+                padding: '25px',
+                border: '1px solid rgba(255,255,255,0.2)',
+                backdropFilter: 'blur(20px)',
+                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.1))',
+                boxShadow: '0 25px 60px rgba(0,0,0,0.4)',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
             {/* Close Button */}
             <button
               onClick={handleCloseRewardPopup}
               style={{
                 position: 'absolute',
-                top: 15,
-                right: 15,
+                top: 10,
+                right: 10,
                 background: 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',
                 color: '#fff',
                 borderRadius: '50%',
-                width: 35,
-                height: 35,
+                width: 30,
+                height: 30,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                fontSize: '18px'
+                fontSize: '16px',
+                zIndex: 10
               }}
             >
               ✕
             </button>
 
             {/* Content */}
-            <div style={{ textAlign: 'center', color: '#fff',display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center" }}>
+            <div 
+              className="popup-content-scrollable"
+              style={{ 
+                textAlign: 'center', 
+                color: '#fff',
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                flex: 1,
+                overflowY: 'auto',
+                paddingRight: '10px',
+                paddingTop: '10px'
+              }}
+            >
               <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '15px' }}>
-                Welcome to WAGMI Blaster!
+                Welcome to WAGMI Blaster! 🚀
               </h2>
-              <p style={{ fontSize: '16px', opacity: 0.9, marginBottom: '5px', lineHeight: '1.5' }}>
-                Get ready for epic gaming rewards! Play WAGMI Blaster daily 
+              <p style={{ fontSize: '16px', opacity: 0.9, marginBottom: '20px', lineHeight: '1.5' }}>
+                Get ready for epic gaming rewards! Play WAGMI Blaster daily and compete for $ARB tokens.
               </p>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '5px' }}>
-                <img src="/candy/1.png" alt="" style={{width:"40px",height:"40px"}} />
-                <span style={{fontSize:"16px",opacity:0.9}}>🎮</span>
+              
+              {/* How to Play Section */}
+              <div style={{ 
+                background: 'rgba(255,255,255,0.1)', 
+                borderRadius: '15px', 
+                padding: '20px',
+                marginBottom: '20px',
+                width: '100%'
+              }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '15px', color: '#00FFAA' }}>
+                  🎮 How to Play
+                </h3>
+                <div style={{ textAlign: 'left', fontSize: '13px', lineHeight: '1.4' }}>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px' }}>🎯</span>
+                    <span><strong>Objective:</strong> Destroy falling stones to score points</span>
+                  </div>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px' }}>📱</span>
+                    <span><strong>Touch Controls:</strong> Touch left/right sides of screen to move</span>
+                  </div>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px' }}>📐</span>
+                    <span><strong>Sensor Controls:</strong> Tilt your phone to move character</span>
+                  </div>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px' }}>💎</span>
+                    <span><strong>Scoring:</strong> Each stone destroyed = points based on type</span>
+                  </div>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px' }}>❤️</span>
+                    <span><strong>Lives:</strong> You have 3 lives - don't let stones hit bottom</span>
+                  </div>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px' }}>⚡</span>
+                    <span><strong>Power-ups:</strong> Collect power-ups for special abilities</span>
+                  </div>
+                </div>
               </div>
-              <p style={{fontSize:"16px",opacity:0.9,marginBottom:"5px",lineHeight:"1.5"}}>and compete for $ARB tokens.</p>
+              {/* Competition Rules Section */}
+              <div style={{ 
+                background: 'rgba(255,255,255,0.1)', 
+                borderRadius: '15px', 
+                padding: '20px',
+                marginBottom: '20px',
+                width: '100%'
+              }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '15px', color: '#FFD700' }}>
+                  🏆 Competition Rules
+                </h3>
+                <div style={{ textAlign: 'left', fontSize: '13px', lineHeight: '1.4' }}>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px' }}>🏅</span>
+                    <span><strong>Top 10 Only:</strong> Only top 10 players get $ARB rewards</span>
+                  </div>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px' }}>⚖️</span>
+                    <span><strong>Fair Play:</strong> No cheating or exploiting bugs</span>
+                  </div>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px' }}>👤</span>
+                    <span><strong>One Account:</strong> One wallet per player only</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Reward Info */}
               <div style={{ 
                 background: 'rgba(255,255,255,0.1)', 
                 borderRadius: '15px', 
                 padding: '20px',
-                marginBottom: '20px'
+                marginBottom: '20px',
+                width: '100%'
               }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '15px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '15px', color: '#FF6B6B' }}>
                   🎁 Top 10 Players Get Rewards
                 </h3>
                   <div style={{ textAlign: 'left', fontSize: '13px', lineHeight: '1.4' }}>
@@ -899,7 +980,45 @@ export function Demo() {
                   </div>
                 </div>
               </div>
-              
+
+              {/* Gift Box System Section */}
+              <div style={{ 
+                background: 'rgba(255,255,255,0.1)', 
+                borderRadius: '15px', 
+                padding: '20px',
+                marginBottom: '20px',
+                width: '100%'
+              }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '15px', color: '#00DDFF' }}>
+                  🎁 Daily Gift Box System
+                </h3>
+                <div style={{ textAlign: 'left', fontSize: '13px', lineHeight: '1.4' }}>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px' }}>⏰</span>
+                    <span><strong>Daily Claims:</strong> 4 gift boxes per 12 hours</span>
+                  </div>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px' }}>📊</span>
+                    <span><strong>Score-Based:</strong> Higher scores = better reward chances</span>
+                  </div>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px' }}>🪙</span>
+                    <span><strong>Token Types:</strong> ARB, PEPE, BOOP tokens available</span>
+                  </div>
+                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px' }}>🎲</span>
+                    <span><strong>Probability:</strong> Score affects "better luck next time" chance</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Fixed Button at Bottom */}
+            <div style={{ 
+              paddingTop: '20px', 
+              borderTop: '1px solid rgba(255,255,255,0.1)',
+              marginTop: '20px'
+            }}>
               <motion.button
                 onClick={handleCloseRewardPopup}
                 style={{
@@ -910,7 +1029,8 @@ export function Demo() {
                   padding: '12px 30px',
                   fontSize: '16px',
                   fontWeight: 'bold',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  width: '100%'
                 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -953,6 +1073,20 @@ export function Demo() {
             transform: translateX(-100vw) translateY(100vh);
             opacity: 0;
           }
+        }
+        
+        .popup-content-scrollable::-webkit-scrollbar {
+          width: 6px;
+        }
+        .popup-content-scrollable::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .popup-content-scrollable::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.3);
+          border-radius: 3px;
+        }
+        .popup-content-scrollable::-webkit-scrollbar-thumb:hover {
+          background: rgba(255,255,255,0.5);
         }
       `}</style>
     </div>
