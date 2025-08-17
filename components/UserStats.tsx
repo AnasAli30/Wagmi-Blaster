@@ -728,16 +728,16 @@ export default function UserStats() {
             trend="COUNT" 
           />
           <StatsCard 
-            icon={faRocket} 
-            title="Average Score" 
-            value={localAverageScore > 0 ? localAverageScore.toLocaleString() : '0'} 
-            trend="AVG" 
+            icon={faCheckCircle} 
+            title="Daily Boxes Left" 
+            value={stats.giftBoxStats?.remainingClaims?.toString() || '0'} 
+            trend={(stats.giftBoxStats?.remainingClaims || 0) > 0 ? "READY" : "LEFT"} 
           />
         </motion.div>
 
         {/* Additional Stats Cards */}
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.8 }}
@@ -760,12 +760,18 @@ export default function UserStats() {
             value={stats.level?.toString() || '1'} 
             trend="LEVEL" 
           />
+          <StatsCard 
+            icon={faRocket} 
+            title="Average Score" 
+            value={localAverageScore > 0 ? localAverageScore.toLocaleString() : '0'} 
+            trend="AVG" 
+          />
         </motion.div>
 
                  {/* Debug Info (remove in production) */}
        
 
-         {/* Gift Box Stats */}
+         {/* Daily Gift Box Status */}
          {stats.giftBoxStats && (
            <motion.div 
              className="border border-[#00FFAA]/40 backdrop-blur-sm p-6 text-white mb-8"
@@ -787,27 +793,61 @@ export default function UserStats() {
                </div>
              </div>
 
-             <div className="grid grid-cols-3 gap-4 mb-8">
-               <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
-                 <div className="w-8 h-8 mx-auto mb-1">
-                   <img src="/candy/1.png" alt="ARB" className="w-full h-full object-contain" />
+             {/* Daily Status Cards */}
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+               <div className="text-center p-4 border border-[#00FFAA]/20 bg-black/30">
+                 <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                   <FontAwesomeIcon icon={faCalendarDay} className="text-[#00FFAA] text-xl" />
                  </div>
-                 <p className="text-xs text-[#00FFAA]">ARB</p>
-                 <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalArb.toFixed(2)}</p>
+                 <p className="text-xs text-[#00FFAA] uppercase tracking-wider">Claims Today</p>
+                 <p className="text-2xl font-bold text-white">{stats.giftBoxStats.claimsToday}</p>
+                 <p className="text-xs text-white/60">/ 4 per 12h</p>
                </div>
-               <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
-                 <div className="w-8 h-8 mx-auto mb-1">
-                   <img src="/candy/2.png" alt="PEPE" className="w-full h-full object-contain" />
+               
+               <div className="text-center p-4 border border-[#00FFAA]/20 bg-black/30">
+                 <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                   <FontAwesomeIcon icon={faCheckCircle} className="text-[#00FFAA] text-xl" />
                  </div>
-                 <p className="text-xs text-[#00FFAA]">PEPE</p>
-                 <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalPepe.toLocaleString()}</p>
+                 <p className="text-xs text-[#00FFAA] uppercase tracking-wider">Remaining</p>
+                 <p className="text-2xl font-bold text-white">{stats.giftBoxStats.remainingClaims}</p>
+                 <p className="text-xs text-white/60">boxes left</p>
                </div>
-               <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
-                 <div className="w-8 h-8 mx-auto mb-1">
-                   <img src="/candy/player.png" alt="BOOP" className="w-full h-full object-contain" />
+               
+               <div className="text-center p-4 border border-[#00FFAA]/20 bg-black/30">
+                 <div className="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                   <FontAwesomeIcon icon={faHistory} className="text-[#00FFAA] text-xl" />
                  </div>
-                 <p className="text-xs text-[#00FFAA]">BOOP</p>
-                 <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalBoop.toLocaleString()}</p>
+                 <p className="text-xs text-[#00FFAA] uppercase tracking-wider">Total Claims</p>
+                 <p className="text-2xl font-bold text-white">{stats.giftBoxStats.totalClaims}</p>
+                 <p className="text-xs text-white/60">all time</p>
+               </div>
+             </div>
+
+             {/* Token Rewards Summary */}
+             <div className="border-t border-[#00FFAA]/20 pt-4">
+               <h4 className="text-sm font-bold text-[#00FFAA] uppercase tracking-wider mb-3">Total Rewards Collected</h4>
+               <div className="grid grid-cols-3 gap-4">
+                 <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
+                   <div className="w-8 h-8 mx-auto mb-1">
+                     <img src="/candy/1.png" alt="ARB" className="w-full h-full object-contain" />
+                   </div>
+                   <p className="text-xs text-[#00FFAA]">ARB</p>
+                   <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalArb.toFixed(2)}</p>
+                 </div>
+                 <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
+                   <div className="w-8 h-8 mx-auto mb-1">
+                     <img src="/candy/2.png" alt="PEPE" className="w-full h-full object-contain" />
+                   </div>
+                   <p className="text-xs text-[#00FFAA]">PEPE</p>
+                   <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalPepe.toLocaleString()}</p>
+                 </div>
+                 <div className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
+                   <div className="w-8 h-8 mx-auto mb-1">
+                     <img src="/candy/player.png" alt="BOOP" className="w-full h-full object-contain" />
+                   </div>
+                   <p className="text-xs text-[#00FFAA]">BOOP</p>
+                   <p className="text-lg font-bold text-white">{stats.giftBoxStats.totalBoop.toLocaleString()}</p>
+                 </div>
                </div>
              </div>
 
