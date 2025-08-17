@@ -696,14 +696,7 @@ export default function UserStats() {
                  </motion.button>
                  
                  {/* Debug button (remove in production) */}
-                 <motion.button
-                   onClick={addTestData}
-                   className="bg-red-600 text-white font-medium py-2 px-4 flex items-center space-x-2 hover:bg-red-700 transition-all duration-300"
-                   whileHover={{ scale: 1.02 }}
-                   whileTap={{ scale: 0.98 }}
-                 >
-                   <span className="text-sm">ADD TEST DATA</span>
-                 </motion.button>
+                
               </div>
             </div>
           </div>
