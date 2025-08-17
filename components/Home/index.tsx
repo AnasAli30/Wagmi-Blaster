@@ -7,7 +7,7 @@ import {
   faHome, faChartBar, faTrophy, faRocket, 
   faCrown, faCoins, faBolt, faFire, faUsers,
   faArrowRight, faChartLine, faGamepad, faPlay,
-  faBullseye
+  faBullseye, faInfoCircle
 } from '@fortawesome/free-solid-svg-icons'
 import { useMiniAppContext } from '@/hooks/use-miniapp-context';
 import { incrementGamesPlayed } from '@/lib/game-counter';
@@ -589,7 +589,7 @@ export function Demo() {
                 <div className="w-20 h-20 relative">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#00FFAA] to-[#0088FF] rounded-xl blur-lg opacity-40 animate-pulse"></div>
                 <img 
-                  src="/images/icon.png" 
+                  src="/images/icon.jpg" 
                     alt="WAGMI Blaster" 
                     className="relative w-20 h-20 rounded-xl shadow-lg border-2 border-[#00FFAA]/30 object-cover"
                   />

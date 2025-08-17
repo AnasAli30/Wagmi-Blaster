@@ -12,9 +12,9 @@ export async function GET() {
     frame: {
       version: "1",
       name: "WAGMI Blaster",
-      iconUrl: `${APP_URL}/images/icon.png`,
+      iconUrl: `${APP_URL}/images/icon.jpg`,
       homeUrl: `${APP_URL}`,
-      imageUrl: `${APP_URL}/images/feed.png`,
+      imageUrl: `${APP_URL}/images/feed.jpg`,
       screenshotUrls: [],
       tags: ["arbitrum", "farcaster", "miniapp", "games"],
       primaryCategory: "games",
@@ -27,8 +27,8 @@ export async function GET() {
       tagline:"Play and Earn",
       ogTitle:"Chain Crush",
       ogDescription: "Play and Earn",
-      ogImageUrl: `${APP_URL}/images/feed.png`,
-      heroImageUrl: `${APP_URL}/images/feed.png`,
+      ogImageUrl: `${APP_URL}/images/feed.jpg`,
+      heroImageUrl: `${APP_URL}/images/feed.jpg`,
       requiredChains: ["eip155:42161"],
     },
     "baseBuilder": {
