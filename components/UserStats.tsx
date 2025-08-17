@@ -1,0 +1,802 @@
+'use client'
+
+import { useState, useEffect, useMemo } from 'react';
+import { useAccount } from 'wagmi';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faWallet, 
+  faCopy, 
+  faUser, 
+  faTarget, 
+  faCoins, 
+  faCalendarDay,
+  faTrophy,
+  faHistory,
+  faChartLine,
+  faCheckCircle,
+  faExternalLinkAlt,
+  faRefresh,
+  faShare,
+  faRocket
+} from '@fortawesome/free-solid-svg-icons';
+import { useMiniAppContext } from '@/hooks/use-miniapp-context';
+import { getAverageScore, getBestScore, getTotalGamesFromScores } from '@/lib/game-counter';
+import { APP_URL } from '@/lib/constants';
+import { motion, AnimatePresence } from 'framer-motion';
+
+
+interface UserStats {
+  userAddress: string;
+  dailyMintCount: number;
+  mintHistory: Array<{
+    score: number;
+    timestamp: number;
+    trait?: string;
+    tokenId?: number;
+  }>;
+  topScores: Array<{
+    userAddress: string;
+    score: number;
+    timestamp: number;
+  }>;
+  dailyMintsRemaining: number;
+  totalGamesPlayed?: number;
+  averageScore?: number;
+  bestScore?: number;
+  totalNFTsMinted?: number;
+  currentSeasonScore?: number | null;
+  ath?: number | null;
+  level?: number | null;
+  hasMintedToday?: boolean;
+  nftsByTrait?: {
+    common: number;
+    epic: number;
+    rare: number;
+    legendary: number;
+  };
+  giftBoxStats?: {
+    totalClaims: number;
+    totalArb: number;
+    totalPepe: number;
+    totalBoop: number;
+    claimsToday: number;
+    remainingClaims: number;
+    totalRewardsClaimed: number;
+  };
+}
+
+export default function UserStats() {
+  const { address } = useAccount();
+  const { context, actions } = useMiniAppContext();
+  const [stats, setStats] = useState<UserStats | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [copiedAddress, setCopiedAddress] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [ethBalance, setEthBalance] = useState<string>('0.00');
+  const [balanceLoading, setBalanceLoading] = useState(false);
+  const [localBestScore, setLocalBestScore] = useState<number | null>(null);
+  const [localGamesPlayed, setLocalGamesPlayed] = useState<number>(0);
+  const [localAverageScore, setLocalAverageScore] = useState<number>(0);
+  const [localBestFromScores, setLocalBestFromScores] = useState<number>(0);
+  const [totalGamesFromScores, setTotalGamesFromScores] = useState<number>(0);
+  const [sharing, setSharing] = useState(false);
+
+  // Memoized star and shooting star data for stable animation
+  const starData = useMemo(() =>
+    Array.from({ length: 30 }, (_, i) => {
+      const size = Math.random() * 6 + 3;
+      const starColor = i % 3 === 0 ? '#ffffff' : i % 3 === 1 ? '#ffff88' : '#88ccff';
+      return {
+        size,
+        color: starColor,
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        animation: `twinkle ${Math.random() * 3 + 2}s ease-in-out infinite`,
+        animationDelay: `${Math.random() * 5}s`,
+        opacity: Math.random() * 0.6 + 0.2,
+        textShadow: `0 0 ${size/2}px ${starColor}`,
+      };
+    }),
+    []
+  );
+  const shootingStarData = useMemo(() =>
+    Array.from({ length: 2 }, (_, i) => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 50}%`,
+      animation: `shoot ${Math.random() * 20 + 15}s linear infinite`,
+      animationDelay: `${Math.random() * 15}s`,
+    })),
+    []
+  );
+
+  // Get best score from localStorage
+  const getBestScoreFromStorage = () => {
+    if (typeof window !== 'undefined') {
+      const storedScore = localStorage.getItem('candyBestScore');
+      if (storedScore) {
+        const score = parseInt(storedScore, 10);
+        if (!isNaN(score) && score > 0) {
+          setLocalBestScore(score);
+          return;
+        }
+      }
+    }
+    setLocalBestScore(null);
+  };
+
+  // Get games played count from localStorage
+  const getGamesPlayedFromStorage = () => {
+    if (typeof window !== 'undefined') {
+      const storedCount = localStorage.getItem('candyGamesPlayed');
+      if (storedCount) {
+        const count = parseInt(storedCount, 10);
+        if (!isNaN(count) && count >= 0) {
+          setLocalGamesPlayed(count);
+          return;
+        }
+      }
+    }
+    setLocalGamesPlayed(0);
+  };
+
+  // Get calculated stats from scores
+  const getCalculatedStats = () => {
+    setLocalAverageScore(getAverageScore());
+    setLocalBestFromScores(getBestScore());
+    setTotalGamesFromScores(getTotalGamesFromScores());
+  };
+
+  // Share stats function using Farcaster ComposerCast
+  const shareStats = async () => {
+    if (!actions) {
+      console.error('Farcaster actions not available');
+      return;
+    }
+
+    setSharing(true);
+    try {
+      // Build the stats message
+      const shareStats = [];
+      
+      // Add Rewards Claimed count
+      const totalRewards = stats?.giftBoxStats?.totalRewardsClaimed || 0;
+      if (totalRewards > 0) {
+        shareStats.push(`🎁 ${totalRewards} Rewards Claimed`);
+      }
+      
+      // Add games played
+      if (localGamesPlayed > 0) {
+        shareStats.push(`🎮 ${localGamesPlayed} Games`);
+      }
+      
+      // Add best score
+      const bestScore = Math.max(localBestScore || 0, localBestFromScores);
+      if (bestScore > 0) {
+        shareStats.push(`🏆 ${bestScore.toLocaleString()} Best Score`);
+      }
+      
+      // Add average score
+      if (localAverageScore > 0) {
+        shareStats.push(`📊 ${localAverageScore.toLocaleString()} Avg Score`);
+      }
+      
+   
+       
+
+      // Create the share message
+      const statsText = shareStats.length > 0 ? shareStats.join(' • ') : 'Just started playing!';
+      const username = context?.user?.username || 'WAGMI Blaster Player';
+      
+      const shareMessage =  `just CRUSHED it on WAGMI Blaster! 💪\n\n${statsText}\n\n🔥 Y'all think you can beat these stats? I'm waiting... 👀\n Drop your best score below and let's see who's really built different!\n\n#WAGMI Blaster`;
+      
+      await actions.composeCast({
+        text: shareMessage,
+        embeds: [APP_URL || "https://chain-crush-black.vercel.app/"]
+      });
+      
+    } catch (error) {
+      console.error('Failed to share stats:', error);
+    } finally {
+      setSharing(false);
+    }
+  };
+
+
+
+  // Helper function to copy address to clipboard
+  const copyAddress = async () => {
+    if (!address) return;
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopiedAddress(true);
+      setTimeout(() => setCopiedAddress(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy address:', error);
+    }
+  };
+
+  // Fetch ETH balance using ethers.js
+  const fetchEthBalance = async () => {
+    if (!address) return;
+    setBalanceLoading(true);
+    try {
+      const { ethers } = await import('ethers');
+      const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
+      const balance = await provider.getBalance(address);
+      const formattedBalance = ethers.formatEther(balance);
+      // Format to 4 decimal places
+      const roundedBalance = parseFloat(formattedBalance).toFixed(4);
+      setEthBalance(roundedBalance);
+    } catch (error) {
+      console.error('Error fetching ETH balance:', error);
+      setEthBalance('Error');
+    } finally {
+      setBalanceLoading(false);
+    }
+  };
+
+
+  // Fetch user stats function
+  const fetchStats = async () => {
+    if (!address) return;
+    setLoading(true);
+    try {
+      const fid = context?.user?.fid;
+      const [statsResponse, giftBoxResponse, giftBoxCheckResponse] = await Promise.all([
+        fetch(`/api/user-stats?userAddress=${address}`),
+        fetch(`/api/claim-gift-box?userAddress=${address}&fid=${fid}&stats=true`),
+        fetch(`/api/claim-gift-box?userAddress=${address}&fid=${fid}`)
+      ]);
+      
+      const statsResult = await statsResponse.json();
+      const giftBoxResult = await giftBoxResponse.json();
+      const giftBoxCheck = await giftBoxCheckResponse.json();
+      
+      console.log('Gift box check result:', giftBoxCheck);
+      
+      if (statsResult.success) {
+        const data = statsResult.data;
+        const correctedRemaining = Math.max(0, 5 - (data.dailyMintCount || 0));
+        
+        // Get gift box stats from the response
+        const giftBoxStats = giftBoxResult.success ? giftBoxResult.stats : null;
+        
+        // Update gift box stats with current remaining claims
+        if (giftBoxStats && giftBoxCheck.success) {
+          giftBoxStats.claimsToday = giftBoxCheck.claimsToday || 0;
+          giftBoxStats.remainingClaims = giftBoxCheck.remainingClaims || 5;
+        }
+        
+        setStats({
+          ...data,
+          dailyMintsRemaining: correctedRemaining,
+          giftBoxStats
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper function to refresh data
+  const refreshData = async () => {
+    setRefreshing(true);
+    await Promise.all([
+      fetchStats(),
+      fetchEthBalance()
+    ]);
+    getBestScoreFromStorage(); // This is synchronous, so no need to await
+    getGamesPlayedFromStorage(); // This is synchronous, so no need to await
+    getCalculatedStats(); // This is synchronous, so no need to await
+    setRefreshing(false);
+  };
+
+  useEffect(() => {
+    if (address) {
+      fetchStats();
+      fetchEthBalance();
+    }
+    // Always get best score and games played from localStorage regardless of wallet connection
+    getBestScoreFromStorage();
+    getGamesPlayedFromStorage();
+    getCalculatedStats();
+  }, [address]);
+
+  // Listen for localStorage changes to update best score and games played in real-time
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'candyBestScore') {
+        getBestScoreFromStorage();
+      } else if (e.key === 'candyGamesPlayed') {
+        getGamesPlayedFromStorage();
+      } else if (e.key === 'candyGameScores') {
+        getCalculatedStats();
+      }
+    };
+
+    // Listen for storage events from other tabs
+    window.addEventListener('storage', handleStorageChange);
+
+    // Also check periodically in case the values are updated in the same tab
+    const interval = setInterval(() => {
+      getBestScoreFromStorage();
+      getGamesPlayedFromStorage();
+      getCalculatedStats();
+    }, 5000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
+
+  if (!address) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center space-y-4">
+          <div className="text-6xl mb-4">🔗</div>
+          <h2 className="text-2xl font-bold text-gray-800">Connect Your Wallet</h2>
+          <p className="text-gray-600">Please connect your wallet to view your stats</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen p-4 space-y-6">
+        {/* Header Skeleton */}
+        <div className="text-center space-y-4 mb-8">
+          <div className="flex items-center justify-center space-x-4 mb-4">
+            <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse"></div>
+            <div>
+              <div className="w-48 h-8 bg-gray-200 rounded mb-2 animate-pulse"></div>
+              <div className="w-24 h-6 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+          
+          {/* Wallet Address & Balance Skeleton */}
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 space-y-3">
+            <div className="flex items-center justify-center space-x-3">
+              <div className="w-4 h-4 bg-white/20 rounded animate-pulse"></div>
+              <div className="w-32 h-4 bg-white/20 rounded animate-pulse"></div>
+              <div className="w-4 h-4 bg-white/20 rounded animate-pulse"></div>
+            </div>
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-4 h-4 bg-white/20 rounded animate-pulse"></div>
+              <div className="w-16 h-4 bg-white/20 rounded animate-pulse"></div>
+              <div className="w-16 h-4 bg-white/20 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Stats Overview Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {[...Array(4)].map((_, index) => (
+            <div key={index} className="bg-gradient-to-r from-gray-200 to-gray-300 p-4 rounded-2xl shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="w-16 h-4 bg-gray-300 rounded mb-2 animate-pulse"></div>
+                  <div className="w-12 h-6 bg-gray-300 rounded animate-pulse"></div>
+                </div>
+                <div className="w-6 h-6 bg-gray-300 rounded animate-pulse"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Daily Mint Status Skeleton */}
+        <div className="bg-gradient-to-r from-[#19adff] to-[#28374d] p-6 rounded-2xl text-white shadow-lg">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-32 h-6 bg-white bg-opacity-20 rounded animate-pulse"></div>
+            <div className="w-8 h-8 bg-white bg-opacity-20 rounded animate-pulse"></div>
+          </div>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="text-center">
+              <div className="w-20 h-4 bg-white bg-opacity-20 rounded mx-auto mb-2 animate-pulse"></div>
+              <div className="w-16 h-8 bg-white bg-opacity-20 rounded mx-auto animate-pulse"></div>
+            </div>
+            <div className="text-center">
+              <div className="w-24 h-4 bg-white bg-opacity-20 rounded mx-auto mb-2 animate-pulse"></div>
+              <div className="w-16 h-8 bg-white bg-opacity-20 rounded mx-auto animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Mints Skeleton */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+            <div className="w-32 h-6 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+          <div className="space-y-3">
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="flex justify-between items-center p-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+                  <div>
+                    <div className="w-24 h-5 bg-gray-200 rounded mb-2 animate-pulse"></div>
+                    <div className="w-20 h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+                <div className="w-16 h-6 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Top Scores Skeleton */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+            <div className="w-32 h-6 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+          <div className="space-y-3">
+            {[...Array(5)].map((_, index) => (
+              <div key={index} className="flex justify-between items-center p-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+                  <div>
+                    <div className="w-32 h-5 bg-gray-200 rounded mb-2 animate-pulse"></div>
+                    <div className="w-24 h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="w-20 h-6 bg-gray-200 rounded mb-1 animate-pulse"></div>
+                  <div className="w-12 h-3 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center space-y-4">
+          <div className="text-6xl mb-4">📊</div>
+          <h2 className="text-2xl font-bold text-gray-800">No Stats Available</h2>
+          <p className="text-gray-600">Start playing to generate your statistics!</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen p-4 space-y-6 relative z-10">
+      {/* Header with User Profile */}
+      <motion.div 
+        className="text-center space-y-4 mb-8"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="flex items-center justify-center space-x-4 mb-4">
+          {context?.user?.pfpUrl ? (
+            <img 
+              src={context.user.pfpUrl} 
+              alt="Profile" 
+              className="w-16 h-16 rounded-full border-4 border-[#19adff] shadow-lg"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[#19adff] to-[#28374d] flex items-center justify-center border-4 border-white shadow-lg">
+              <FontAwesomeIcon icon={faUser} className="text-2xl text-white" />
+            </div>
+          )}
+                      <div>
+              <h1 className="text-3xl font-bold text-white">
+                {context?.user?.username || 'Player'}
+              </h1>
+              <div className="flex items-center space-x-2 mt-2">
+                <button
+                  onClick={refreshData}
+                  disabled={refreshing}
+                  className="flex items-center space-x-2 text-[#19adff] bg-white px-3 py-1 rounded-full text-sm font-medium hover:bg-gray-100 transition-colors"
+                >
+                  <FontAwesomeIcon icon={faRefresh} className={refreshing ? 'animate-spin' : ''} />
+                  <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
+                </button>
+                
+              
+              </div>
+            </div>
+        </div>
+        
+        {/* Wallet Address & Balance */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-center space-x-3">
+            <FontAwesomeIcon icon={faWallet} className="text-[#19adff]" />
+            <span className="text-white font-mono text-sm">
+              {address?.slice(0, 8)}...{address?.slice(-8)}
+            </span>
+            <button
+              onClick={copyAddress}
+              className="text-[#19adff] hover:text-[#1590d4] transition-colors"
+            >
+              <FontAwesomeIcon 
+                icon={copiedAddress ? faCheckCircle : faCopy} 
+                className={copiedAddress ? 'text-green-400' : ''} 
+              />
+            </button>
+          </div>
+          
+          {/* ETH Balance */}
+          <div className="flex items-center justify-center space-x-2 text-white/80">
+       
+            <FontAwesomeIcon icon={faCoins} className="text-yellow-400" />
+            <span className="text-sm">Balance:</span>
+            {balanceLoading ? (
+              <div className="flex items-center space-x-1">
+                <div className="w-3 h-3 bg-white/40 rounded animate-pulse"></div>
+                <div className="w-8 h-3 bg-white/40 rounded animate-pulse"></div>
+              </div>
+            ) : (
+              <span className="font-bold text-yellow-400">
+                {ethBalance}   <img src="/candy/arb.png" alt="" style={{width: '20px', height: '20px',display:"inline-block",margin:"0px 5px"}}/> ETH
+              </span>
+            )}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Stats Overview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+        {/* Total Rewards Claimed */}
+        <motion.div 
+          className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 rounded-2xl text-white shadow-lg"
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm opacity-90">Total Rewards Claimed</p>
+              <p className="text-2xl font-bold">{stats.giftBoxStats?.totalRewardsClaimed || 0}</p>
+            </div>
+            <FontAwesomeIcon icon={faCoins} className="text-2xl opacity-80" />
+          </div>
+        </motion.div>
+
+        {/* Current Season Score - Show when available */}
+        {stats?.currentSeasonScore && (
+          <motion.div 
+            className="bg-gradient-to-r from-green-500 to-emerald-500 p-4 rounded-2xl text-white shadow-lg"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm opacity-90">Current Season</p>
+                <p className="text-2xl font-bold">
+                  {stats.currentSeasonScore.toLocaleString()}
+                </p>
+              </div>
+              <FontAwesomeIcon icon={faTrophy} className="text-2xl opacity-80" />
+            </div>
+          </motion.div>
+        )}
+
+        {/* All-Time High - Show when available */}
+        {stats?.bestScore && (
+          <motion.div 
+            className="bg-gradient-to-r from-yellow-500 to-orange-500 p-4 rounded-2xl text-white shadow-lg"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm opacity-90">All-Time High</p>
+                <p className="text-2xl font-bold">
+                  {stats.bestScore.toLocaleString()}
+                </p>
+              </div>
+              <FontAwesomeIcon icon={faTrophy} className="text-2xl opacity-80" />
+            </div>
+          </motion.div>
+        )}
+
+        {/* Best Score - Show the highest between localStorage and calculated scores (fallback) */}
+        {!stats?.currentSeasonScore && !stats?.ath && (localBestScore !== null || localBestFromScores > 0) && (
+          <motion.div 
+            className="bg-gradient-to-r from-yellow-500 to-orange-500 p-4 rounded-2xl text-white shadow-lg"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm opacity-90">Best Score</p>
+                <p className="text-2xl font-bold">
+                  {Math.max(localBestScore || 0, localBestFromScores).toLocaleString()}
+                </p>
+              </div>
+              <FontAwesomeIcon icon={faTrophy} className="text-2xl opacity-80" />
+            </div>
+          </motion.div>
+        )}
+
+        {/* Games Played */}
+        <motion.div 
+          className="bg-gradient-to-r from-green-500 to-teal-500 p-4 rounded-2xl text-white shadow-lg"
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm opacity-90">Games Played</p>
+              <p className="text-2xl font-bold">{localGamesPlayed}</p>
+             
+            </div>
+            <FontAwesomeIcon icon={faChartLine} className="text-2xl opacity-80" />
+          </div>
+        </motion.div>
+
+        {/* Average Score - Only show if there are games played */}
+        {localAverageScore > 0 && (
+          <motion.div 
+            className="bg-gradient-to-r from-blue-500 to-indigo-500 p-4 rounded-2xl text-white shadow-lg"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm opacity-90">Average Score</p>
+                <p className="text-2xl font-bold">{localAverageScore.toLocaleString()}</p>
+              </div>
+              <FontAwesomeIcon icon={faChartLine} className="text-2xl opacity-80" />
+            </div>
+          </motion.div>
+        )}
+      </div>
+<div className='rounded-[13px]' style={{width:"100%",border:"4px #7c65c1 solid"}}>
+      <button
+                  onClick={shareStats}
+                  disabled={sharing}
+                  className="flex items-center justify-center space-x-2 text-purple-600 bg-white px-3 py-3  rounded-[10px] text-sm font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 w-full text-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256" fill="none">
+                  <rect width="256" height="256" rx="56" fill="#7C65C1"></rect>
+                  <path d="M183.296 71.68H211.968L207.872 94.208H200.704V180.224L201.02 180.232C204.266 180.396 206.848 183.081 206.848 186.368V191.488L207.164 191.496C210.41 191.66 212.992 194.345 212.992 197.632V202.752H155.648V197.632C155.648 194.345 158.229 191.66 161.476 191.496L161.792 191.488V186.368C161.792 183.081 164.373 180.396 167.62 180.232L167.936 180.224V138.24C167.936 116.184 150.056 98.304 128 98.304C105.944 98.304 88.0638 116.184 88.0638 138.24V180.224L88.3798 180.232C91.6262 180.396 94.2078 183.081 94.2078 186.368V191.488L94.5238 191.496C97.7702 191.66 100.352 194.345 100.352 197.632V202.752H43.0078V197.632C43.0078 194.345 45.5894 191.66 48.8358 191.496L49.1518 191.488V186.368C49.1518 183.081 51.7334 180.396 54.9798 180.232L55.2958 180.224V94.208H48.1278L44.0318 71.68H72.7038V54.272H183.296V71.68Z" fill="white"></path>
+                </svg>
+                  <span>{sharing ? 'Sharing...' : 'Share Stats'}</span>
+        </button>
+        </div>
+      {/* Daily Gift Box Status */}
+      <motion.div 
+        className="bg-gradient-to-r from-purple-500 to-pink-500 p-6 rounded-2xl text-white shadow-lg"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.6 }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold flex items-center space-x-2">
+            <div className="text-2xl">🎁</div>
+            <span>Daily Gift Box Status</span>
+          </h3>
+          <div className="text-3xl">✨</div>
+        </div>
+        <div className="grid grid-cols-2 gap-6">
+          <div className="text-center">
+            <p className="text-sm opacity-90 mb-1">Opened Today</p>
+            <p className="text-3xl font-bold">{stats.giftBoxStats?.claimsToday || 0}/5</p>
+          </div>
+          <div className="text-center">
+            <p className="text-sm opacity-90 mb-1">Remaining</p>
+            <p className="text-3xl font-bold">{stats.giftBoxStats?.remainingClaims ? stats.giftBoxStats?.remainingClaims - 5 : 0}</p>
+          </div>
+        </div>
+        
+        {/* Progress Bar */}
+        <div className="mt-4">
+          <div className="bg-white/20 rounded-full h-2">
+            <div 
+              className="bg-white rounded-full h-2 transition-all duration-500"
+              style={{ width: `${((stats.giftBoxStats?.claimsToday || 0) / 5) * 100}%` }}
+            />
+          </div>
+        </div>
+        
+        {/* Gift Box Status Indicator */}
+        <div className="mt-4 text-center">
+          {(stats.giftBoxStats?.remainingClaims ? stats.giftBoxStats?.remainingClaims - 5 : 0) > 0 ? (
+            <div className="inline-flex items-center space-x-2 bg-green-500/20 px-3 py-2 rounded-full">
+              <FontAwesomeIcon icon={faCheckCircle} className="text-green-400" />
+              <span className="text-sm font-medium text-green-300">🎁 Gift Boxes Available</span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center space-x-2 bg-yellow-500/20 px-3 py-2 rounded-full">
+              <FontAwesomeIcon icon={faHistory} className="text-yellow-400" />
+              <span className="text-sm font-medium text-yellow-300">⏰ Daily Limit Reached - Reset in 12 hours</span>
+            </div>
+          )}
+        </div>
+      </motion.div>
+
+      {/* NFT Collection Overview */}
+      {stats.nftsByTrait && (
+        <motion.div 
+          className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-gray-800 flex items-center space-x-2">
+              <FontAwesomeIcon icon={faTarget} className="text-[#19adff]" />
+              <span>Meme Coin Collection</span>
+            </h3>
+            <span className="text-sm text-gray-500">Total Coins Destroyed: 12.5K</span>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-gray-100 rounded-xl">
+              <div className="text-2xl mb-2">⚪</div>
+              <p className="text-sm text-gray-600">Common</p>
+              <p className="text-xl font-bold text-gray-800">{stats.nftsByTrait.common || 0}</p>
+            </div>
+            <div className="text-center p-4 bg-purple-100 rounded-xl">
+              <div className="text-2xl mb-2">🟣</div>
+              <p className="text-sm text-purple-600">Epic</p>
+              <p className="text-xl font-bold text-purple-800">{stats.nftsByTrait.epic || 0}</p>
+            </div>
+            <div className="text-center p-4 bg-yellow-100 rounded-xl">
+              <div className="text-2xl mb-2">🟡</div>
+              <p className="text-sm text-yellow-600">Rare</p>
+              <p className="text-xl font-bold text-yellow-800">{stats.nftsByTrait.rare || 0}</p>
+            </div>
+            <div className="text-center p-4 bg-red-100 rounded-xl">
+              <div className="text-2xl mb-2">🔴</div>
+              <p className="text-sm text-red-600">Legendary</p>
+              <p className="text-xl font-bold text-red-800">{stats.nftsByTrait.legendary || 0}</p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Gift Box Stats */}
+      {stats.giftBoxStats && (
+        <motion.div 
+          className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.6 }}
+        >
+        
+          
+          
+          {/* Progress Bar */}
+          
+          
+          <div className="grid grid-cols-3 gap-3">
+            <div className="text-center p-3 bg-blue-100 rounded-xl">
+              <div className="w-8 h-8 mx-auto mb-1">
+                <img src="/candy/1.png" alt="ARB" className="w-full h-full object-contain" />
+              </div>
+              <p className="text-xs text-blue-600">ARB</p>
+              <p className="text-sm font-bold text-blue-800">{stats.giftBoxStats.totalArb.toFixed(2)}</p>
+            </div>
+            <div className="text-center p-3 bg-green-100 rounded-xl">
+              <div className="w-8 h-8 mx-auto mb-1">
+                <img src="/candy/2.png" alt="PEPE" className="w-full h-full object-contain" />
+              </div>
+              <p className="text-xs text-green-600">PEPE</p>
+              <p className="text-sm font-bold text-green-800">{stats.giftBoxStats.totalPepe.toLocaleString()}</p>
+            </div>
+            <div className="text-center p-3 bg-purple-100 rounded-xl">
+              <div className="w-8 h-8 mx-auto mb-1">
+                <img src="/candy/player.png" alt="BOOP" className="w-full h-full object-contain" />
+              </div>
+              <p className="text-xs text-purple-600">BOOP</p>
+              <p className="text-sm font-bold text-purple-800">{stats.giftBoxStats.totalBoop.toLocaleString()}</p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+    
+    </div>
+  );
+} 
