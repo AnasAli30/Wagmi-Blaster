@@ -1002,18 +1002,18 @@ export async function generateGiftBoxReward(score: number = 0): Promise<{
   const tokenChance = (1 - betterLuckProbability) / 3; // Equal distribution among 3 tokens
   
   if (tokenRandom < tokenChance) {
-    // ARB: 0.05 - 0.15 (halved from 0.1 - 0.3)
-    const arbAmount = 0.05 + (Math.random() * 0.1);
+    // ARB: 0.025 - 0.075 (halved from 0.05 - 0.15)
+    const arbAmount = 0.025 + (Math.random() * 0.05);
     console.log(`🎁 Gift Box: ARB reward! (${(tokenChance * 100).toFixed(1)}% chance) - Amount: ${arbAmount.toFixed(6)} - Score: ${score.toLocaleString()}`);
     return { tokenType: 'arb', amount: parseFloat(arbAmount.toFixed(6)) };
   } else if (tokenRandom < tokenChance * 2) {
-    // PEPE: 4473 - 13557 (halved from 8946 - 27115)
-    const pepeAmount = 4473 + Math.floor(Math.random() * (13557 - 4473 + 1));
+    // PEPE: 2236 - 6778 (halved from 4473 - 13557)
+    const pepeAmount = 2236 + Math.floor(Math.random() * (6778 - 2236 + 1));
     console.log(`🎁 Gift Box: PEPE reward! (${(tokenChance * 100).toFixed(1)}% chance) - Amount: ${pepeAmount.toLocaleString()} - Score: ${score.toLocaleString()}`);
     return { tokenType: 'pepe', amount: pepeAmount };
   } else {
-    // BOOP: 1423 - 2000 (halved from 2847 - 4000)
-    const boopAmount = 1423 + Math.floor(Math.random() * (2000 - 1423 + 1));
+    // BOOP: 711 - 1000 (halved from 1423 - 2000)
+    const boopAmount = 711 + Math.floor(Math.random() * (1000 - 711 + 1));
     console.log(`🎁 Gift Box: BOOP reward! (${(tokenChance * 100).toFixed(1)}% chance) - Amount: ${boopAmount.toLocaleString()} - Score: ${score.toLocaleString()}`);
     return { tokenType: 'boop', amount: boopAmount };
   }
