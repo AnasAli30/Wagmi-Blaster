@@ -557,7 +557,7 @@ export default function Leaderboard() {
       )}
 
       {/* Leaderboard */}
-      <div className="rounded-2xl p-4 shadow-lg bg-white/10 backdrop-blur-sm border border-white/20">
+      <div className="rounded-2xl p-4 shadow-lg bg-black/40 backdrop-blur-sm border border-white/10">
        
 
               {/* Stats */}

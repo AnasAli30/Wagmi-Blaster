@@ -694,7 +694,7 @@ export default function StoneShooterGame({ onBack }: StoneShooterGameProps) {
         
         // Always submit score to leaderboard when game is over
         const playerData = getPlayerData(context);
-        submitScore(playerData.fid, playerData.username, playerData.pfpUrl, score, 'Bounce Blaster', {
+        submitScore(playerData.fid, playerData.username, playerData.pfpUrl, score, 'WAGMI Blasterr', {
           time: formattedTime,
           stonesDestroyed,
           playerHits
@@ -1607,7 +1607,7 @@ export default function StoneShooterGame({ onBack }: StoneShooterGameProps) {
                   ? `\n\🔥 That's +${Math.round(((gameOverData.score - gameOverData.previousBestScore) / gameOverData.previousBestScore) * 100)}% improvement from my Highest Score!`
                   : '';
                 
-                const shareText = `🎯 Just scored ${gameOverData.score} points in Bounce Blaster! 💥\n\ ${gameOverData.stonesDestroyed} kills and survived ${gameOverData.playerHits} hits!${improvementText}\n\nCan you beat my score?`;
+                const shareText = `🎯 Just scored ${gameOverData.score} points in WAGMI Blasterr! 💥\n\ ${gameOverData.stonesDestroyed} kills and survived ${gameOverData.playerHits} hits!${improvementText}\n\nCan you beat my score?`;
                 
                 const playerData = getPlayerData(context);
                 const shareParams = new URLSearchParams({

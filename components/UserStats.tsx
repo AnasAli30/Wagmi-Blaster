@@ -7,7 +7,7 @@ import {
   faWallet, 
   faCopy, 
   faUser, 
-  faTarget, 
+  faBullseye, 
   faCoins, 
   faCalendarDay,
   faTrophy,
@@ -725,7 +725,7 @@ export default function UserStats() {
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-bold text-gray-800 flex items-center space-x-2">
-              <FontAwesomeIcon icon={faTarget} className="text-[#19adff]" />
+              <FontAwesomeIcon icon={faBullseye} className="text-[#19adff]" /* Updated icon */ />
               <span>Meme Coin Collection</span>
             </h3>
             <span className="text-sm text-gray-500">Total Coins Destroyed: 12.5K</span>
