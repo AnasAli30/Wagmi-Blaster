@@ -468,98 +468,206 @@ export default function UserStats() {
   }
 
   return (
-    <div className="min-h-screen p-4 space-y-6 relative z-10">
-      {/* Header with User Profile */}
-      <motion.div 
-        className="text-center space-y-4 mb-8"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="flex items-center justify-center space-x-4 mb-4">
-          {context?.user?.pfpUrl ? (
-            <img 
-              src={context.user.pfpUrl} 
-              alt="Profile" 
-              className="w-16 h-16 rounded-full border-4 border-[#19adff] shadow-lg"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[#19adff] to-[#28374d] flex items-center justify-center border-4 border-white shadow-lg">
-              <FontAwesomeIcon icon={faUser} className="text-2xl text-white" />
-            </div>
-          )}
-                      <div>
-              <h1 className="text-3xl font-bold text-white">
-                {context?.user?.username || 'Player'}
+    <div className="min-h-screen overflow-hidden" style={{ background: 'linear-gradient(180deg, #001122 0%, #f9f7f4 100%)' }}>
+      {/* Animated Stars Background - Same as home page */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Stars */}
+        {starData.map((star, i) => (
+          <div
+            key={i}
+            className="star absolute"
+            style={{
+              left: star.left,
+              top: star.top,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              color: star.color,
+              fontSize: `${star.size}px`,
+              lineHeight: '1',
+              animation: star.animation,
+              animationDelay: star.animationDelay,
+              opacity: star.opacity,
+              textShadow: star.textShadow,
+              pointerEvents: 'none'
+            }}
+          >
+            ★
+          </div>
+        ))}
+        
+        {/* Shooting Stars */}
+        {shootingStarData.map((shoot, i) => (
+          <div
+            key={`shooting-${i}`}
+            className="shooting-star absolute"
+            style={{
+              left: shoot.left,
+              top: shoot.top,
+              width: '12px',
+              height: '12px',
+              color: '#ffffff',
+              fontSize: '12px',
+              lineHeight: '1',
+              animation: shoot.animation,
+              animationDelay: shoot.animationDelay,
+              opacity: 0.9,
+              textShadow: '0 0 8px #ffffff',
+              pointerEvents: 'none'
+            }}
+          >
+            ★
+          </div>
+        ))}
+      </div>
+      
+      <div className="relative z-10 px-6 pb-24">
+        {/* Header with User Profile */}
+        <motion.div 
+          className="pt-12 pb-8"
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, type: "spring" }}
+        >
+          <div className="flex items-center mb-8">
+            <motion.div
+              className="relative mr-4"
+              whileHover={{ scale: 1.05, rotate: [0, -5, 5, 0] }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+            >
+              <div className="w-20 h-20 relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-[#00FFAA] to-[#0088FF] rounded-xl blur-lg opacity-40 animate-pulse"></div>
+                {context?.user?.pfpUrl ? (
+                  <img 
+                    src={context.user.pfpUrl} 
+                    alt="Profile" 
+                    className="relative w-20 h-20 rounded-xl shadow-lg border-2 border-[#00FFAA]/30 object-cover"
+                  />
+                ) : (
+                  <div className="relative w-20 h-20 rounded-xl shadow-lg border-2 border-[#00FFAA]/30 bg-gradient-to-r from-purple-600 to-cyan-600 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faUser} className="text-2xl text-white" />
+                  </div>
+                )}
+              </div>
+            </motion.div>
+            
+            <div className="flex-grow">
+              <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight mb-2">
+                Player <span className="text-[#00FFAA]">Analytics</span>
               </h1>
-              <div className="flex items-center space-x-2 mt-2">
-                <button
+              <p className="text-lg text-white/70 font-light mb-4">
+                Welcome back, <span className="text-[#00FFAA] font-normal">{context?.user?.username || 'Player'}</span>
+              </p>
+              
+              <div className="flex items-center space-x-4">
+                <motion.button
                   onClick={refreshData}
                   disabled={refreshing}
-                  className="flex items-center space-x-2 text-[#19adff] bg-white px-3 py-1 rounded-full text-sm font-medium hover:bg-gray-100 transition-colors"
+                  className="bg-transparent text-[#00FFAA] font-medium py-2 px-4 border border-[#00FFAA]/30 flex items-center space-x-2 hover:bg-[#00FFAA]/10 transition-all duration-300"
+                  whileHover={{ backgroundColor: "rgba(0, 255, 170, 0.05)" }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <FontAwesomeIcon icon={faRefresh} className={refreshing ? 'animate-spin' : ''} />
-                  <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
-                </button>
+                  <FontAwesomeIcon icon={faRefresh} className={`${refreshing ? 'animate-spin' : ''} text-sm`} />
+                  <span className="text-sm">{refreshing ? 'REFRESHING...' : 'REFRESH'}</span>
+                </motion.button>
                 
-              
+                <motion.button
+                  onClick={shareStats}
+                  disabled={sharing}
+                  className="bg-gradient-to-r from-purple-600 to-pink-500 text-white font-medium py-2 px-4 flex items-center space-x-2 hover:from-purple-700 hover:to-pink-600 transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="none">
+                    <rect width="256" height="256" rx="56" fill="#7C65C1"></rect>
+                    <path d="M183.296 71.68H211.968L207.872 94.208H200.704V180.224L201.02 180.232C204.266 180.396 206.848 183.081 206.848 186.368V191.488L207.164 191.496C210.41 191.66 212.992 194.345 212.992 197.632V202.752H155.648V197.632C155.648 194.345 158.229 191.66 161.476 191.496L161.792 191.488V186.368C161.792 183.081 164.373 180.396 167.62 180.232L167.936 180.224V138.24C167.936 116.184 150.056 98.304 128 98.304C105.944 98.304 88.0638 116.184 88.0638 138.24V180.224L88.3798 180.232C91.6262 180.396 94.2078 183.081 94.2078 186.368V191.488L94.5238 191.496C97.7702 191.66 100.352 194.345 100.352 197.632V202.752H43.0078V197.632C43.0078 194.345 45.5894 191.66 48.8358 191.496L49.1518 191.488V186.368C49.1518 183.081 51.7334 180.396 54.9798 180.232L55.2958 180.224V94.208H48.1278L44.0318 71.68H72.7038V54.272H183.296V71.68Z" fill="white"></path>
+                  </svg>
+                  <span className="text-sm">{sharing ? 'SHARING...' : 'SHARE'}</span>
+                </motion.button>
               </div>
             </div>
-        </div>
-        
-        {/* Wallet Address & Balance */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 space-y-3">
-          <div className="flex items-center justify-center space-x-3">
-            <FontAwesomeIcon icon={faWallet} className="text-[#19adff]" />
-            <span className="text-white font-mono text-sm">
-              {address?.slice(0, 8)}...{address?.slice(-8)}
-            </span>
-            <button
-              onClick={copyAddress}
-              className="text-[#19adff] hover:text-[#1590d4] transition-colors"
-            >
-              <FontAwesomeIcon 
-                icon={copiedAddress ? faCheckCircle : faCopy} 
-                className={copiedAddress ? 'text-green-400' : ''} 
-              />
-            </button>
           </div>
           
-          {/* ETH Balance */}
-          <div className="flex items-center justify-center space-x-2 text-white/80">
-       
-            <FontAwesomeIcon icon={faCoins} className="text-yellow-400" />
-            <span className="text-sm">Balance:</span>
-            {balanceLoading ? (
-              <div className="flex items-center space-x-1">
-                <div className="w-3 h-3 bg-white/40 rounded animate-pulse"></div>
-                <div className="w-8 h-3 bg-white/40 rounded animate-pulse"></div>
+          {/* Wallet Address & Balance */}
+          <motion.div 
+            className="border border-[#00FFAA]/40 backdrop-blur-sm p-6 text-white mb-8"
+            style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
+            }}
+            whileHover={{ borderColor: "rgba(0, 255, 170, 0.6)" }}
+          >
+            <div className="flex items-center mb-4">
+              <div className="w-10 h-10 border border-[#00FFAA] flex items-center justify-center mr-4">
+                <FontAwesomeIcon icon={faWallet} className="text-[#00FFAA]" />
               </div>
-            ) : (
-              <span className="font-bold text-yellow-400">
-                {ethBalance}   <img src="/candy/arb.png" alt="" style={{width: '20px', height: '20px',display:"inline-block",margin:"0px 5px"}}/> ETH
-              </span>
-            )}
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Stats Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
-        {/* Total Rewards Claimed */}
-        <motion.div 
-          className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 rounded-2xl text-white shadow-lg"
-          whileHover={{ scale: 1.02 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm opacity-90">Total Rewards Claimed</p>
-              <p className="text-2xl font-bold">{stats.giftBoxStats?.totalRewardsClaimed || 0}</p>
+              <div className="flex-grow">
+                <h3 className="text-lg font-bold text-[#00FFAA] uppercase tracking-wider">Wallet Info</h3>
+                <div className="h-[1px] w-full bg-gradient-to-r from-[#00FFAA]/50 to-transparent mt-1"></div>
+              </div>
             </div>
-            <FontAwesomeIcon icon={faCoins} className="text-2xl opacity-80" />
-          </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-white/60 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faWallet} className="text-xs" />
+                  Address
+                </span>
+                <div className="flex items-center space-x-2">
+                  <span className="bg-[#00FFAA]/10 border border-[#00FFAA]/30 font-mono text-[#00FFAA] rounded-md px-3 py-1 text-sm">
+                    {address?.slice(0, 8)}...{address?.slice(-8)}
+                  </span>
+                  <button
+                    onClick={copyAddress}
+                    className="text-[#00FFAA] hover:text-[#00FFAA]/80 transition-colors"
+                  >
+                    <FontAwesomeIcon 
+                      icon={copiedAddress ? faCheckCircle : faCopy} 
+                      className={`text-sm ${copiedAddress ? 'text-green-400' : ''}`} 
+                    />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-white/60 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faCoins} className="text-xs" />
+                  Balance
+                </span>
+                {balanceLoading ? (
+                  <div className="flex items-center space-x-1">
+                    <div className="w-3 h-3 bg-[#00FFAA]/20 rounded animate-pulse"></div>
+                    <div className="w-8 h-3 bg-[#00FFAA]/20 rounded animate-pulse"></div>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-[#00FFAA] font-bold">{ethBalance}</span>
+                    <img src="/candy/arb.png" alt="ETH" style={{width: '20px', height: '20px'}}/>
+                    <span className="text-white/60 text-sm">ETH</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Corner accents */}
+            <div className="absolute top-0 right-0 w-10 h-[1px] bg-[#00FFAA]/30" />
+            <div className="absolute top-0 right-0 h-10 w-[1px] bg-[#00FFAA]/30" />
+          </motion.div>
         </motion.div>
+
+        {/* Stats Overview Cards */}
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.8 }}
+        >
+          {/* Total Rewards Claimed */}
+          <StatsCard 
+            icon={faCoins} 
+            title="Rewards Claimed" 
+            value={stats.giftBoxStats?.totalRewardsClaimed?.toString() || '0'} 
+            trend="TOTAL" 
+          />
 
         {/* Current Season Score - Show when available */}
         {stats?.currentSeasonScore && (
