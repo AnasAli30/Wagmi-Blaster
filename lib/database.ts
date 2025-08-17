@@ -969,35 +969,52 @@ export async function canUserSeeGiftBox(userAddress: string, fid?: number): Prom
   };
 }
 
-export async function generateGiftBoxReward(): Promise<{
+export async function generateGiftBoxReward(score: number = 0): Promise<{
   tokenType: 'arb' | 'pepe' | 'boop' | 'none';
   amount: number;
 }> {
-  // 50% chance of "better luck next time"
+  // Calculate "better luck next time" probability based on score
+  let betterLuckProbability = 0.5; // Default 50%
+  
+  if (score < 4000) {
+    betterLuckProbability = 0.9; // 90% chance for scores under 4000
+  } else if (score < 8000) {
+    betterLuckProbability = 0.7; // 70% chance for scores 4000-7999
+  } else if (score < 12000) {
+    betterLuckProbability = 0.5; // 50% chance for scores 8000-11999
+  } else if (score < 16000) {
+    betterLuckProbability = 0.3; // 30% chance for scores 12000-15999
+  } else if (score < 20000) {
+    betterLuckProbability = 0.2; // 20% chance for scores 16000-19999
+  } else {
+    betterLuckProbability = 0.1; // 10% chance for scores 20000+
+  }
+  
   const random = Math.random();
   
-  if (random < 0.5) {
-    console.log('🎁 Gift Box: Better luck next time! (50% chance)');
+  if (random < betterLuckProbability) {
+    console.log(`🎁 Gift Box: Better luck next time! (${(betterLuckProbability * 100).toFixed(1)}% chance) - Score: ${score.toLocaleString()}`);
     return { tokenType: 'none', amount: 0 };
   }
   
-  // 50% chance of getting a token (distributed equally among the 3 tokens)
+  // Remaining chance of getting a token (distributed equally among the 3 tokens)
   const tokenRandom = Math.random();
+  const tokenChance = (1 - betterLuckProbability) / 3; // Equal distribution among 3 tokens
   
-  if (tokenRandom < 1/3) {
+  if (tokenRandom < tokenChance) {
     // ARB: 0.05 - 0.15 (halved from 0.1 - 0.3)
     const arbAmount = 0.05 + (Math.random() * 0.1);
-    console.log(`🎁 Gift Box: ARB reward! (16.67% chance) - Amount: ${arbAmount.toFixed(6)}`);
+    console.log(`🎁 Gift Box: ARB reward! (${(tokenChance * 100).toFixed(1)}% chance) - Amount: ${arbAmount.toFixed(6)} - Score: ${score.toLocaleString()}`);
     return { tokenType: 'arb', amount: parseFloat(arbAmount.toFixed(6)) };
-  } else if (tokenRandom < 2/3) {
+  } else if (tokenRandom < tokenChance * 2) {
     // PEPE: 4473 - 13557 (halved from 8946 - 27115)
     const pepeAmount = 4473 + Math.floor(Math.random() * (13557 - 4473 + 1));
-    console.log(`🎁 Gift Box: PEPE reward! (16.67% chance) - Amount: ${pepeAmount.toLocaleString()}`);
+    console.log(`🎁 Gift Box: PEPE reward! (${(tokenChance * 100).toFixed(1)}% chance) - Amount: ${pepeAmount.toLocaleString()} - Score: ${score.toLocaleString()}`);
     return { tokenType: 'pepe', amount: pepeAmount };
   } else {
     // BOOP: 1423 - 2000 (halved from 2847 - 4000)
     const boopAmount = 1423 + Math.floor(Math.random() * (2000 - 1423 + 1));
-    console.log(`🎁 Gift Box: BOOP reward! (16.67% chance) - Amount: ${boopAmount.toLocaleString()}`);
+    console.log(`🎁 Gift Box: BOOP reward! (${(tokenChance * 100).toFixed(1)}% chance) - Amount: ${boopAmount.toLocaleString()} - Score: ${score.toLocaleString()}`);
     return { tokenType: 'boop', amount: boopAmount };
   }
 }
@@ -1028,8 +1045,24 @@ export async function claimGiftBox(userAddress: string, fid?: number): Promise<{
     };
   }
   
-  // Generate reward
-  const reward = await generateGiftBoxReward();
+  // Get user's best score for reward calculation
+  let userBestScore = 0;
+  if (fid) {
+    try {
+      const userGameData = await db.collection('gameScores').findOne(
+        { fid: fid },
+        { sort: { score: -1 } }
+      );
+      userBestScore = userGameData?.score || 0;
+      console.log(`🎯 User best score for gift box calculation: ${userBestScore.toLocaleString()}`);
+    } catch (error) {
+      console.log('⚠️ Error getting user score for gift box, using 0:', error);
+      userBestScore = 0;
+    }
+  }
+  
+  // Generate reward based on user's score
+  const reward = await generateGiftBoxReward(userBestScore);
   
   // Update gift box claims in gameScores collection
   const currentTime = Date.now();
