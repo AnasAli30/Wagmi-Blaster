@@ -709,29 +709,38 @@ export default function UserStats() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
         >
-          <StatsCard 
-            icon={faCoins} 
-            title="Rewards Claimed" 
-            value={stats.giftBoxStats?.totalRewardsClaimed?.toString() || '0'} 
-            trend="TOTAL" 
-          />
-          <StatsCard 
-            icon={faTrophy} 
-            title="Best Score" 
-            value={Math.max(localBestScore || 0, localBestFromScores, stats.bestScore || 0).toLocaleString() || '0'} 
-            trend="HIGH" 
-          />
-          <StatsCard 
-            icon={faChartLine} 
-            title="Games Played" 
-            value={Math.max(localGamesPlayed, totalGamesFromScores).toString()} 
-            trend="COUNT" 
-          />
+          {(stats.giftBoxStats?.totalRewardsClaimed || 0) > 0 && (
+            <StatsCard 
+              icon={faCoins} 
+              title="Rewards Claimed" 
+              value={(stats.giftBoxStats?.totalRewardsClaimed || 0).toString()} 
+              trend="TOTAL" 
+            />
+          )}
+          {(Math.max(localBestScore || 0, localBestFromScores, stats.bestScore || 0) || 0) > 0 && (
+            <StatsCard 
+              icon={faTrophy} 
+              title="Best Score" 
+              value={Math.max(localBestScore || 0, localBestFromScores, stats.bestScore || 0).toLocaleString()} 
+              trend="HIGH" 
+            />
+          )}
+          {(Math.max(localGamesPlayed, totalGamesFromScores) || 0) > 0 && (
+            <StatsCard 
+              icon={faChartLine} 
+              title="Games Played" 
+              value={Math.max(localGamesPlayed, totalGamesFromScores).toString()} 
+              trend="COUNT" 
+            />
+          )}
           <StatsCard 
             icon={faCheckCircle} 
             title="Daily Boxes Left" 
             value={stats.giftBoxStats?.remainingClaims?.toString() || '0'} 
             trend={(stats.giftBoxStats?.remainingClaims || 0) > 0 ? "READY" : "LEFT"} 
+            showProgressBar={true}
+            progressValue={stats.giftBoxStats?.remainingClaims || 0}
+            maxProgress={4}
           />
         </motion.div>
 
@@ -742,30 +751,38 @@ export default function UserStats() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.8 }}
         >
-          <StatsCard 
-            icon={faCalendarDay} 
-            title="Current Season Score" 
-            value={stats.currentSeasonScore?.toLocaleString() || '0'} 
-            trend="SEASON" 
-          />
-          <StatsCard 
-            icon={faHistory} 
-            title="All Time High" 
-            value={stats.ath?.toLocaleString() || '0'} 
-            trend="ATH" 
-          />
-          <StatsCard 
-            icon={faUser} 
-            title="Player Level" 
-            value={stats.level?.toString() || '1'} 
-            trend="LEVEL" 
-          />
-          <StatsCard 
-            icon={faRocket} 
-            title="Average Score" 
-            value={localAverageScore > 0 ? localAverageScore.toLocaleString() : '0'} 
-            trend="AVG" 
-          />
+          {stats.currentSeasonScore && stats.currentSeasonScore > 0 && (
+            <StatsCard 
+              icon={faCalendarDay} 
+              title="Current Season Score" 
+              value={stats.currentSeasonScore.toLocaleString()} 
+              trend="SEASON" 
+            />
+          )}
+          {stats.ath && stats.ath > 0 && (
+            <StatsCard 
+              icon={faHistory} 
+              title="All Time High" 
+              value={stats.ath.toLocaleString()} 
+              trend="ATH" 
+            />
+          )}
+          {stats.level && stats.level > 1 && (
+            <StatsCard 
+              icon={faUser} 
+              title="Player Level" 
+              value={stats.level.toString()} 
+              trend="LEVEL" 
+            />
+          )}
+          {(localAverageScore || 0) > 0 && (
+            <StatsCard 
+              icon={faRocket} 
+              title="Average Score" 
+              value={localAverageScore.toLocaleString()} 
+              trend="AVG" 
+            />
+          )}
         </motion.div>
 
                  {/* Debug Info (remove in production) */}
@@ -888,11 +905,22 @@ export default function UserStats() {
 }
 
 // Stats Card Component (same as home page)
-const StatsCard = ({ icon, title, value, trend }: {
+const StatsCard = ({ 
+  icon, 
+  title, 
+  value, 
+  trend, 
+  showProgressBar = false, 
+  progressValue = 0, 
+  maxProgress = 4 
+}: {
   icon: any;
   title: string;
   value: string;
   trend: string;
+  showProgressBar?: boolean;
+  progressValue?: number;
+  maxProgress?: number;
 }) => (
   <motion.div
     className="relative overflow-hidden border border-[#00FFAA]/30 bg-black/20 p-4 text-white backdrop-blur-sm"
@@ -910,6 +938,24 @@ const StatsCard = ({ icon, title, value, trend }: {
       </div>
       <div className="text-2xl font-light mb-1 text-white">{value}</div>
       <div className="text-xs text-white/60 uppercase tracking-wider">{title}</div>
+      
+      {/* Progress Bar for Gift Box Remaining */}
+      {showProgressBar && (
+        <div className="mt-3">
+          <div className="flex justify-between text-xs text-white/60 mb-1">
+            <span>0</span>
+            <span>{maxProgress}</span>
+          </div>
+          <div className="w-full bg-white/10 rounded-full h-2">
+            <motion.div
+              className="bg-gradient-to-r from-[#00FFAA] to-[#0088FF] h-2 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${(progressValue / maxProgress) * 100}%` }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            />
+          </div>
+        </div>
+      )}
     </div>
     <div className="absolute -bottom-1 -right-1 w-12 h-[1px] bg-[#00FFAA]/30" />
     <div className="absolute -bottom-1 -right-1 h-12 w-[1px] bg-[#00FFAA]/30" />
