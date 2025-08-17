@@ -773,35 +773,30 @@ export function Demo() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.4, duration: 0.6 }}
           >
-            <button
+            <motion.button
               onClick={() => setShowRewardPopup(true)}
-              style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                border: '2px solid rgba(255,255,255,0.2)',
-                borderRadius: '15px',
-                padding: '12px 30px',
-                color: '#fff',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 8px 25px rgba(102, 126, 234, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
+              className="relative group overflow-hidden bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg flex items-center gap-3"
+              whileHover={{ 
+                scale: 1.03,
+                boxShadow: "0 10px 25px -5px rgba(168, 85, 247, 0.4), 0 0 25px rgba(217, 70, 219, 0.2)"
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 12px 35px rgba(102, 126, 234, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.3)';
+              whileTap={{ scale: 0.97 }}
+              style={{ 
+                boxShadow: '0 8px 20px -5px rgba(168, 85, 247, 0.3), 0 0 15px rgba(217, 70, 219, 0.15)'
               }}
             >
-              <span>ℹ️</span>
-              More Info
-            </button>
+              {/* Static background with game-style pattern */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-blue-500/20 opacity-50" />
+              
+              {/* Content */}
+              <div className="relative z-10 flex items-center gap-3">
+                <FontAwesomeIcon icon={faInfoCircle} className="text-lg" />
+                <span className="font-bold text-lg">MORE INFO</span>
+              </div>
+              
+              {/* Game button shine effect */}
+              <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            </motion.button>
           </motion.div>
 
         </div>
