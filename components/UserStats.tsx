@@ -718,9 +718,52 @@ export default function UserStats() {
               {/* <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight mb-2">
                 Player <span className="text-[#00FFAA]">Analytics</span>
               </h1> */}
-              <p className="text-lg text-white/70 font-light mb-4">
+              <p className="text-lg text-white/70 font-light mb-2">
                 Welcome back, <span className="text-[#00FFAA] font-normal">{context?.user?.username || 'Player'}</span>
               </p>
+              
+              {/* Wallet Address and Balance */}
+              <div className="mb-4 p-3 border border-[#00FFAA]/20 bg-black/30 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <FontAwesomeIcon icon={faWallet} className="text-[#00FFAA] text-sm" />
+                    <span className="text-xs text-[#00FFAA] uppercase tracking-wider">Wallet Address</span>
+                  </div>
+                  <motion.button
+                    onClick={copyAddress}
+                    className="text-[#00FFAA] hover:text-[#00FFAA]/80 transition-colors"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <FontAwesomeIcon icon={faCopy} className="text-xs" />
+                  </motion.button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-white/80 font-mono">
+                    {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Not connected'}
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <FontAwesomeIcon icon={faCoins} className="text-[#00FFAA] text-xs" />
+                    <span className="text-sm text-white/80">
+                      {balanceLoading ? (
+                        <span className="text-[#00FFAA]">Loading...</span>
+                      ) : (
+                        `${ethBalance} ETH`
+                      )}
+                    </span>
+                  </div>
+                </div>
+                {copiedAddress && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute top-2 right-2 bg-[#00FFAA] text-black text-xs px-2 py-1 rounded"
+                  >
+                    Copied!
+                  </motion.div>
+                )}
+              </div>
               
               <div className="flex items-center space-x-4">
                 <motion.button
