@@ -47,11 +47,11 @@ export function Demo() {
   const { connect, connectors } = useConnect()
   const { isConnected, address } = useAccount()
   
-  // Blockchain contract write for starting WAGMI Blaster Blaster game
+  // Blockchain contract write for starting WAGMI Blaster game
   const { writeContract: writeStartGame, data: startGameTx, isSuccess: startGameSuccess, isError: startGameContractError, error: startGameErrorObj, reset: resetStartGame } = useContractWrite();
   const { isLoading: isStartGameLoading, isSuccess: isStartGameSuccess } = useWaitForTransactionReceipt({ hash: startGameTx });
   
-  // WAGMI Blaster Blaster game start state
+  // WAGMI Blaster game start state
   const [isStartingStoneShooter, setIsStartingStoneShooter] = useState(false);
   const [stoneShooterError, setStoneShooterError] = useState<string | null>(null);
   const [stoneShooterSuccess, setStoneShooterSuccess] = useState(false);
@@ -141,20 +141,20 @@ export function Demo() {
     }
   }
 
-  // Handle WAGMI Blaster Blaster game start with blockchain transaction
+  // Handle WAGMI Blaster game start with blockchain transaction
   const handleStartStoneShooter1 = async() => {
     setShowStoneShooter(true);
   }
 
   const handleStartStoneShooter = async () => {
     if (!address) {
-      console.warn('No wallet address available for WAGMI Blaster Blaster');
+      console.warn('No wallet address available for WAGMI Blaster');
       setStoneShooterError('Please connect your wallet first');
       return;
     }
 
     if (isStartingStoneShooter) {
-      console.log('🔄 WAGMI Blaster Blaster transaction already in progress');
+      console.log('🔄 WAGMI Blaster transaction already in progress');
       return;
     }
 
@@ -177,13 +177,13 @@ export function Demo() {
         args: []
       });
 
-      console.log('✅ WAGMI Blaster Blaster blockchain transaction initiated');
+      console.log('✅ WAGMI Blaster blockchain transaction initiated');
       
       // The transaction is now pending, the useEffect will handle success/failure
       
     } catch (error: any) {
-      console.error('Error starting WAGMI Blaster Blaster game:', error);
-      setStoneShooterError(error.message || 'Failed to start WAGMI Blaster Blaster game');
+      console.error('Error starting WAGMI Blaster game:', error);
+      setStoneShooterError(error.message || 'Failed to start WAGMI Blaster game');
       setIsStartingStoneShooter(false);
     }
   };
@@ -227,16 +227,16 @@ export function Demo() {
     return () => clearInterval(intervalId)
   }, [])
 
-  // Handle successful WAGMI Blaster Blaster blockchain transaction
+  // Handle successful WAGMI Blaster blockchain transaction
   useEffect(() => {
     if (isStartGameSuccess && isStartingStoneShooter && startGameTx) {
-      console.log('✅ WAGMI Blaster Blaster blockchain transaction confirmed');
+      console.log('✅ WAGMI Blaster blockchain transaction confirmed');
       
       // Immediately start the game
-      console.log('🚀 Launching WAGMI Blaster Blaster game...');
+      console.log('🚀 Launching WAGMI Blaster game...');
       incrementGamesPlayed();
       setShowStoneShooter(true);
-      console.log('✅ WAGMI Blaster Blaster game state set to true');
+      console.log('✅ WAGMI Blaster game state set to true');
       
       // Hide the loader and reset transaction state
       setIsStartingStoneShooter(false);
@@ -245,10 +245,10 @@ export function Demo() {
     }
   }, [isStartGameSuccess, isStartingStoneShooter, startGameTx]);
 
-  // Handle WAGMI Blaster Blaster blockchain transaction error
+  // Handle WAGMI Blaster blockchain transaction error
   useEffect(() => {
     if (startGameContractError && isStartingStoneShooter) {
-      console.error('❌ WAGMI Blaster Blaster blockchain transaction failed:', startGameErrorObj);
+      console.error('❌ WAGMI Blaster blockchain transaction failed:', startGameErrorObj);
       setStoneShooterError(startGameErrorObj?.message || 'Blockchain transaction failed');
       setIsStartingStoneShooter(false);
       setStoneShooterSuccess(false);
@@ -256,13 +256,13 @@ export function Demo() {
     }
   }, [startGameContractError, startGameErrorObj, isStartingStoneShooter]);
 
-  // Reset wagmi state when returning from WAGMI Blaster Blaster game
+  // Reset wagmi state when returning from WAGMI Blaster game
   useEffect(() => {
     // Only reset when we're on home page (not showing any game) and have a successful transaction
     // and we're not currently in an active transaction
     if (!showStoneShooter && !showGame && !showStats && !showLeaderboard && 
         (startGameSuccess || isStartGameSuccess) && !hasActiveTransaction) {
-      console.log('🔄 Resetting WAGMI Blaster Blaster transaction state');
+      console.log('🔄 Resetting WAGMI Blaster transaction state');
       resetStartGame();
     }
   }, [showStoneShooter, showGame, showStats, showLeaderboard, startGameSuccess, isStartGameSuccess, hasActiveTransaction, resetStartGame]);
@@ -657,7 +657,7 @@ export function Demo() {
                     <>
                       <FontAwesomeIcon icon={faRocket} className="text-2xl" />
                       <span className="font-bold text-xl">PLAY NOW</span>
-                      <span className="text-sm opacity-80">WAGMI Blaster BLASTER</span>
+                      <span className="text-sm opacity-80">WAGMI Blaster</span>
                     </>
                   )}
                 </div>
@@ -856,10 +856,10 @@ export function Demo() {
             {/* Content */}
             <div style={{ textAlign: 'center', color: '#fff',display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center" }}>
               <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '15px' }}>
-                Welcome to WAGMI Blaster Blaster!
+                Welcome to WAGMI Blaster!
               </h2>
               <p style={{ fontSize: '16px', opacity: 0.9, marginBottom: '5px', lineHeight: '1.5' }}>
-                Get ready for epic gaming rewards! Play WAGMI Blaster Blaster daily 
+                Get ready for epic gaming rewards! Play WAGMI Blaster daily 
               </p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '5px' }}>
                 <img src="/candy/1.png" alt="" style={{width:"40px",height:"40px"}} />

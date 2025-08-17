@@ -379,6 +379,7 @@ export default function UserStats() {
   if (loading) {
     return (
       <div className="min-h-screen overflow-hidden" style={{ background: 'linear-gradient(180deg, #001122 0%, #f9f7f4 100%)' }}>
+        {/* Animated Stars Background */}
         <div className="absolute inset-0 overflow-hidden">
           {starData.map((star, i) => (
             <div
@@ -402,14 +403,165 @@ export default function UserStats() {
               ★
             </div>
           ))}
+          
+          {/* Shooting Stars */}
+          {shootingStarData.map((shoot, i) => (
+            <div
+              key={`shooting-${i}`}
+              className="shooting-star absolute"
+              style={{
+                left: shoot.left,
+                top: shoot.top,
+                width: '12px',
+                height: '12px',
+                color: '#ffffff',
+                fontSize: '12px',
+                lineHeight: '1',
+                animation: shoot.animation,
+                animationDelay: shoot.animationDelay,
+                opacity: 0.9,
+                textShadow: '0 0 8px #ffffff',
+                pointerEvents: 'none'
+              }}
+            >
+              ★
+            </div>
+          ))}
         </div>
-        <div className="relative z-10 px-6 pb-24 pt-12">
-          <div className="text-center">
-            <div className="text-6xl mb-4 text-white">⏳</div>
-            <h2 className="text-2xl font-bold text-white">Loading Your Stats...</h2>
-            <p className="text-white/70">Please wait while we fetch your data</p>
-          </div>
+        
+        <div className="relative z-10 px-6 pb-24">
+          {/* Header Skeleton */}
+          <motion.div 
+            className="pt-12 pb-8"
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="flex items-center mb-8">
+              {/* Profile Picture Skeleton */}
+              <div className="relative mr-4">
+                <div className="w-20 h-20 rounded-xl bg-gradient-to-r from-gray-700 to-gray-600 animate-pulse"></div>
+              </div>
+              
+              <div className="flex-grow">
+                {/* Welcome Text Skeleton */}
+                <div className="h-6 bg-gradient-to-r from-gray-700 to-gray-600 rounded mb-4 w-64 animate-pulse"></div>
+                
+                {/* Buttons Skeleton */}
+                <div className="flex items-center space-x-4">
+                  <div className="h-10 w-24 bg-gradient-to-r from-gray-700 to-gray-600 rounded animate-pulse"></div>
+                  <div className="h-10 w-20 bg-gradient-to-r from-gray-700 to-gray-600 rounded animate-pulse"></div>
+                  <div className="h-10 w-28 bg-gradient-to-r from-gray-700 to-gray-600 rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Stats Cards Skeleton */}
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className="relative overflow-hidden border border-[#00FFAA]/30 bg-black/20 p-4 backdrop-blur-sm"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-8 h-8 border border-[#00FFAA] bg-gradient-to-r from-gray-700 to-gray-600 rounded animate-pulse"></div>
+                  <div className="w-12 h-4 bg-gradient-to-r from-gray-700 to-gray-600 rounded animate-pulse"></div>
+                </div>
+                <div className="h-8 bg-gradient-to-r from-gray-700 to-gray-600 rounded mb-1 animate-pulse"></div>
+                <div className="h-4 bg-gradient-to-r from-gray-700 to-gray-600 rounded w-3/4 animate-pulse"></div>
+                <div className="absolute -bottom-1 -right-1 w-12 h-[1px] bg-[#00FFAA]/30" />
+                <div className="absolute -bottom-1 -right-1 h-12 w-[1px] bg-[#00FFAA]/30" />
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Additional Stats Cards Skeleton */}
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="relative overflow-hidden border border-[#00FFAA]/30 bg-black/20 p-4 backdrop-blur-sm"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-8 h-8 border border-[#00FFAA] bg-gradient-to-r from-gray-700 to-gray-600 rounded animate-pulse"></div>
+                  <div className="w-12 h-4 bg-gradient-to-r from-gray-700 to-gray-600 rounded animate-pulse"></div>
+                </div>
+                <div className="h-8 bg-gradient-to-r from-gray-700 to-gray-600 rounded mb-1 animate-pulse"></div>
+                <div className="h-4 bg-gradient-to-r from-gray-700 to-gray-600 rounded w-3/4 animate-pulse"></div>
+                <div className="absolute -bottom-1 -right-1 w-12 h-[1px] bg-[#00FFAA]/30" />
+                <div className="absolute -bottom-1 -right-1 h-12 w-[1px] bg-[#00FFAA]/30" />
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Gift Box Stats Skeleton */}
+          <motion.div 
+            className="border border-[#00FFAA]/40 backdrop-blur-sm p-6 mb-8"
+            style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+          >
+            <div className="flex items-center mb-6">
+              <div className="w-10 h-10 border border-[#00FFAA] bg-gradient-to-r from-gray-700 to-gray-600 rounded mr-4 animate-pulse"></div>
+              <div className="flex-grow">
+                <div className="h-6 bg-gradient-to-r from-gray-700 to-gray-600 rounded w-48 mb-2 animate-pulse"></div>
+                <div className="h-[1px] w-full bg-gradient-to-r from-[#00FFAA]/50 to-transparent"></div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="text-center p-3 border border-[#00FFAA]/20 bg-black/30">
+                  <div className="w-8 h-8 mx-auto mb-1 bg-gradient-to-r from-gray-700 to-gray-600 rounded animate-pulse"></div>
+                  <div className="h-3 bg-gradient-to-r from-gray-700 to-gray-600 rounded w-12 mx-auto mb-2 animate-pulse"></div>
+                  <div className="h-6 bg-gradient-to-r from-gray-700 to-gray-600 rounded w-16 mx-auto animate-pulse"></div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
+
+        {/* Same animations as home page */}
+        <style jsx>{`
+          @keyframes twinkle {
+            0%, 100% { 
+              opacity: 0.2;
+              transform: scale(1);
+            }
+            50% { 
+              opacity: 1;
+              transform: scale(1.2);
+            }
+          }
+          @keyframes shoot {
+            0% {
+              transform: translateX(0) translateY(0);
+              opacity: 1;
+            }
+            70% {
+              opacity: 1;
+            }
+            100% {
+              transform: translateX(-100vw) translateY(100vh);
+              opacity: 0;
+            }
+          }
+        `}</style>
       </div>
     );
   }
