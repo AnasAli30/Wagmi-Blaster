@@ -621,52 +621,55 @@ export function Demo() {
             </motion.div>
           </motion.div>
 
-          <motion.div 
-            className="mb-12"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 1, duration: 0.8, type: "spring" }}
-          >
-            <div className="max-w-full">
-              {/* Game Button */}
-              <motion.button
-                onClick={handleStartStoneShooter}
-                disabled={isStartingStoneShooter}
-                className={`relative group overflow-hidden bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-2 px-5 rounded-xl shadow-lg w-full ${isStartingStoneShooter ? 'opacity-50 cursor-not-allowed' : ''}`}
-                whileHover={isStartingStoneShooter ? {} : { 
-                  scale: 1.03,
-                  boxShadow: "0 10px 25px -5px rgba(168, 85, 247, 0.4), 0 0 25px rgba(217, 70, 219, 0.2)"
-                }}
-                whileTap={isStartingStoneShooter ? {} : { scale: 0.97 }}
-                style={{ 
-                  boxShadow: '0 8px 20px -5px rgba(168, 85, 247, 0.3), 0 0 15px rgba(217, 70, 219, 0.15)'
-                }}
-              >
-                {/* Static background with game-style pattern */}
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-blue-500/20 opacity-50" />
-                
-                {/* Content */}
-                <div className="relative z-10 flex flex-col items-center justify-center space-y-2">
-                  {isStartingStoneShooter ? (
-                    <>
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                      <span className="font-bold">LOADING...</span>
-                      <span className="text-sm opacity-80">GAME STARTING</span>
-                    </>
-                  ) : (
-                    <>
-                      <FontAwesomeIcon icon={faRocket} className="text-2xl" />
-                      <span className="font-bold text-xl">PLAY NOW</span>
-                      <span className="text-sm opacity-80">WAGMI Blaster</span>
-                    </>
-                  )}
-                </div>
-                
-                {/* Game button shine effect */}
-                <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-              </motion.button>
-            </div>
-          </motion.div>
+          {/* Game Button - Only show when wallet is connected */}
+          {isConnected && (
+            <motion.div 
+              className="mb-12"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1, duration: 0.8, type: "spring" }}
+            >
+              <div className="max-w-full">
+                {/* Game Button */}
+                <motion.button
+                  onClick={handleStartStoneShooter}
+                  disabled={isStartingStoneShooter}
+                  className={`relative group overflow-hidden bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-2 px-5 rounded-xl shadow-lg w-full ${isStartingStoneShooter ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  whileHover={isStartingStoneShooter ? {} : { 
+                    scale: 1.03,
+                    boxShadow: "0 10px 25px -5px rgba(168, 85, 247, 0.4), 0 0 25px rgba(217, 70, 219, 0.2)"
+                  }}
+                  whileTap={isStartingStoneShooter ? {} : { scale: 0.97 }}
+                  style={{ 
+                    boxShadow: '0 8px 20px -5px rgba(168, 85, 247, 0.3), 0 0 15px rgba(217, 70, 219, 0.15)'
+                  }}
+                >
+                  {/* Static background with game-style pattern */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-blue-500/20 opacity-50" />
+                  
+                  {/* Content */}
+                  <div className="relative z-10 flex flex-col items-center justify-center space-y-2">
+                    {isStartingStoneShooter ? (
+                      <>
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                        <span className="font-bold">LOADING...</span>
+                        <span className="text-sm opacity-80">GAME STARTING</span>
+                      </>
+                    ) : (
+                      <>
+                        <FontAwesomeIcon icon={faRocket} className="text-2xl" />
+                        <span className="font-bold text-xl">PLAY NOW</span>
+                        <span className="text-sm opacity-80">WAGMI Blaster</span>
+                      </>
+                    )}
+                  </div>
+                  
+                  {/* Game button shine effect */}
+                  <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
 
           {/* Protocol Error Display */}
           {stoneShooterError && (
@@ -775,27 +778,24 @@ export function Demo() {
           >
             <motion.button
               onClick={() => setShowRewardPopup(true)}
-              className="relative group overflow-hidden bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg flex items-center gap-3"
-              whileHover={{ 
-                scale: 1.03,
-                boxShadow: "0 10px 25px -5px rgba(168, 85, 247, 0.4), 0 0 25px rgba(217, 70, 219, 0.2)"
-              }}
-              whileTap={{ scale: 0.97 }}
-              style={{ 
-                boxShadow: '0 8px 20px -5px rgba(168, 85, 247, 0.3), 0 0 15px rgba(217, 70, 219, 0.15)'
-              }}
+              className="w-full bg-transparent text-white font-medium py-5 px-8 border-2 border-[#00FFAA] flex items-center justify-between relative overflow-hidden group"
+              whileHover={{ backgroundColor: "rgba(0, 255, 170, 0.05)" }}
+              whileTap={{ scale: 0.98 }}
             >
-              {/* Static background with game-style pattern */}
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-blue-500/20 opacity-50" />
-              
-              {/* Content */}
-              <div className="relative z-10 flex items-center gap-3">
-                <FontAwesomeIcon icon={faInfoCircle} className="text-lg" />
-                <span className="font-bold text-lg">MORE INFO</span>
+              <div className="flex items-center">
+                <div className="w-6 h-6 border border-[#00FFAA] flex items-center justify-center mr-4">
+                  <FontAwesomeIcon icon={faInfoCircle} className="text-[#00FFAA] text-xs" />
+                </div>
+                <span className="font-medium tracking-wider text-[#00FFAA]">MORE INFO</span>
+              </div>
+              <div className="flex items-center">
+                <div className="h-[1px] w-10 bg-[#00FFAA] mr-3 opacity-50"></div>
+                <FontAwesomeIcon icon={faArrowRight} className="text-sm text-[#00FFAA]" />
               </div>
               
-              {/* Game button shine effect */}
-              <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              {/* Animated border effect */}
+              <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-[#00FFAA] group-hover:w-full transition-all duration-500"></div>
+              <div className="absolute top-0 right-0 h-[2px] w-0 bg-[#00FFAA] group-hover:w-full transition-all duration-500 delay-200"></div>
             </motion.button>
           </motion.div>
 
