@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { APP_URL } from "../../../lib/constants";
+import { APP_URL } from "../../../docs/lib/constants";
 
 export async function GET() {
   const farcasterConfig = {

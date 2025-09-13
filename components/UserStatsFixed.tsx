@@ -20,8 +20,8 @@ import {
   faRocket
 } from '@fortawesome/free-solid-svg-icons';
 import { useMiniAppContext } from '@/hooks/use-miniapp-context';
-import { getAverageScore, getBestScore, getTotalGamesFromScores } from '@/lib/game-counter';
-import { APP_URL } from '@/lib/constants';
+import { getAverageScore, getBestScore, getTotalGamesFromScores } from '@/docs/lib/game-counter';
+import { APP_URL } from '@/docs/lib/constants';
 import { motion, AnimatePresence } from 'framer-motion';
 
 

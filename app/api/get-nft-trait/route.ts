@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { ethers } from "ethers";
-import { CONTRACT_ADDRESSES, CHAINCRUSH_NFT_ABI, NFTTrait } from "@/lib/contracts";
+import { CONTRACT_ADDRESSES, CHAINCRUSH_NFT_ABI, NFTTrait } from "@/docs/lib/contracts";
 
 export async function POST(request: NextRequest) {
   try {

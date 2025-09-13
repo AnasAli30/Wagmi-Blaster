@@ -5,7 +5,7 @@ import { useAccount } from 'wagmi';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrophy, faMedal, faAward, faInfoCircle, faCoins, faShare } from '@fortawesome/free-solid-svg-icons';
 import { useMiniAppContext } from '@/hooks/use-miniapp-context';
-import { APP_URL } from '@/lib/constants';
+import { APP_URL } from '@/docs/lib/constants';
 import { motion, AnimatePresence } from 'framer-motion';
 
 
@@ -544,7 +544,7 @@ export default function Leaderboard() {
              </div>
              
              {/* Reward Info */}
-             {userRank <= 10 && userInfo.nftCount && userInfo.nftCount > 0 && (
+             {userRank <= 10 && (
                <div className="mt-2 px-2 py-1 bg-gradient-to-r from-green-50 to-emerald-50 rounded-md border border-green-200">
                  <p className="text-xs font-bold text-green-700 flex items-center">
                    💰 Reward: {formatReward(getRewardAmount(userRank - 1))} $ARB
@@ -588,7 +588,7 @@ export default function Leaderboard() {
         ) : (
           <div className="space-y-3">
             {leaderboard.map((entry, index) => {
-              const rankColors = index < 10 && entry.nftCount && entry.nftCount > 0 
+              const rankColors = index < 10 && entry.totalRewardsClaimed && entry.totalRewardsClaimed > 0 
                 ? getRankColors(index) 
                 : getRankColors(99); // Default colors for non-top-10
               
@@ -662,7 +662,7 @@ export default function Leaderboard() {
                       ""
                     )}
                     {/* Reward Amount for Top 10 NFT Holders */}
-                    {index < 10 && entry.nftCount && entry.nftCount > 0 && (
+                    {index < 10 && (
                       <p className={`text-xs ${index < 3 ? 'text-green-800' : 'text-green-300'} font-bold`}>
                         💰 {formatReward(getRewardAmount(index))} $ARB
                       </p>

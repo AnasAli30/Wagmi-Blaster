@@ -10,7 +10,7 @@ import {
   faBullseye, faInfoCircle
 } from '@fortawesome/free-solid-svg-icons'
 import { useMiniAppContext } from '@/hooks/use-miniapp-context';
-import { incrementGamesPlayed } from '@/lib/game-counter';
+import { incrementGamesPlayed } from '@/docs/lib/game-counter';
 
 import { FarcasterActions } from '@/components/Home/FarcasterActions'
 import { User } from '@/components/Home/User'
@@ -168,7 +168,7 @@ export function Demo() {
       resetStartGame();
       
       // Call the startGame function on the blockchain
-      const { CONTRACT_ADDRESSES, TOKEN_REWARD_ABI } = await import('@/lib/contracts');
+      const { CONTRACT_ADDRESSES, TOKEN_REWARD_ABI } = await import('@/docs/lib/contracts');
       
       writeStartGame({
         address: CONTRACT_ADDRESSES.TOKEN_REWARD as `0x${string}`,
@@ -198,7 +198,7 @@ export function Demo() {
   const fetchTokenTransactionCount = async () => {
     try {
       setIsLoadingTxCount(true)
-      const { CONTRACT_ADDRESSES } = await import('@/lib/contracts')
+      const { CONTRACT_ADDRESSES } = await import('@/docs/lib/contracts')
       
       // Use public RPC endpoint for Arbitrum
       const provider = new ethers.JsonRpcProvider("https://arb1.arbitrum.io/rpc")
@@ -742,7 +742,7 @@ export function Demo() {
             <StatsCard 
               icon={faUsers} 
               title="Active Players" 
-              value="102" 
+              value="1k+" 
               trend="+23%" 
               color="from-cyan-400 via-blue-500 to-purple-600"
             />
@@ -756,7 +756,7 @@ export function Demo() {
             <StatsCard 
               icon={faFire} 
               title="Games Today" 
-              value="67" 
+              value="1200" 
               trend="+12%" 
               color="from-pink-500 via-purple-500 to-cyan-400"
             />

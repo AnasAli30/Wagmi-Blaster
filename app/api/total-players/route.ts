@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getTotalPlayersCount } from "@/lib/database";
+import { getTotalPlayersCount } from "@/docs/lib/database";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';

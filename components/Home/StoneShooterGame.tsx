@@ -2,13 +2,13 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import Phaser from 'phaser';
 import { useMiniAppContext } from '@/hooks/use-miniapp-context';
-import { APP_URL } from '@/lib/constants';
-import { submitScore, getPlayerData, fetchWithVerification } from '@/lib/leaderboard';
-import { incrementGamesPlayed } from '@/lib/game-counter';
+import { APP_URL } from '@/docs/lib/constants';
+import { submitScore, getPlayerData, fetchWithVerification } from '@/docs/lib/leaderboard';
+import { incrementGamesPlayed } from '@/docs/lib/game-counter';
 
 import ConfirmEndGameModal from '../ConfirmEndGameModal';
 import GiftBox from '../GiftBox';
-import { getRandomValue, getTokenAddress, getTokenDecimals, getTokenImage, rewardTypes, RewardToken } from '@/lib/rewards';
+import { getRandomValue, getTokenAddress, getTokenDecimals, getTokenImage, rewardTypes, RewardToken } from '@/docs/lib/rewards';
 import { useContractWrite, useAccount, useWaitForTransactionReceipt, useSwitchChain } from 'wagmi';
 import { parseUnits } from 'viem';
 import { monadTestnet } from 'wagmi/chains';
@@ -190,7 +190,7 @@ export default function StoneShooterGame({ onBack }: StoneShooterGameProps) {
   // Database score submission function (same as CandyCrush)
   const submitScoreToDatabase = async (fid: number, pfpUrl: string, username: string, gameScore: number, gameLevel: number, gameDurationSeconds?: number, userAddress?: string) => {
     try {
-      const { authenticatedFetch } = await import('@/lib/auth');
+      const { authenticatedFetch } = await import('@/docs/lib/auth');
       const response = await authenticatedFetch('/api/submit-score', {
         method: 'POST',
         body: JSON.stringify({

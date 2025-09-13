@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getWalletUsageStats } from "@/lib/database";
+import { getWalletUsageStats } from "@/docs/lib/database";
 
 export async function GET(request: NextRequest) {
   try {

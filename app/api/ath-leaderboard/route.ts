@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getAllTimeHighLeaderboard } from "@/lib/database";
+import { getAllTimeHighLeaderboard } from "@/docs/lib/database";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';

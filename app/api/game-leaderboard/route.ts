@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getMixedLeaderboard, getTotalPlayersCount } from "@/lib/database";
+import { getMixedLeaderboard, getTotalPlayersCount } from "@/docs/lib/database";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';

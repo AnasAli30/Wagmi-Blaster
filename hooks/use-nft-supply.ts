@@ -1,5 +1,5 @@
 import { useContractRead } from 'wagmi';
-import { CONTRACT_ADDRESSES, CHAINCRUSH_NFT_ABI } from '@/lib/contracts';
+import { CONTRACT_ADDRESSES, CHAINCRUSH_NFT_ABI } from '@/docs/lib/contracts';
 import { useEffect, useState } from 'react';
 
 export function useNFTSupply() {

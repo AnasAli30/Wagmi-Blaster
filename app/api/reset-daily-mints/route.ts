@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { resetDailyMintStatus } from "@/lib/database";
+import { resetDailyMintStatus } from "@/docs/lib/database";
 
 export async function POST(request: NextRequest) {
   try {

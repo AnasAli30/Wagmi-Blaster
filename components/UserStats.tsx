@@ -20,8 +20,9 @@ import {
   faRocket
 } from '@fortawesome/free-solid-svg-icons';
 import { useMiniAppContext } from '@/hooks/use-miniapp-context';
-import { getAverageScore, getBestScore, getTotalGamesFromScores } from '@/lib/game-counter';
-import { APP_URL } from '@/lib/constants';
+import { getAverageScore, getBestScore, getTotalGamesFromScores } from '@/docs/lib/game-counter';
+import { APP_URL } from '@/docs/lib/constants';
+import { generateAuthHeaders } from '@/docs/lib/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 
 
@@ -82,6 +83,15 @@ export default function UserStats() {
   const [totalGamesFromScores, setTotalGamesFromScores] = useState<number>(0);
   const [sharing, setSharing] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string>('');
+  
+  // Share reward states
+  const [shareRewardLoading, setShareRewardLoading] = useState(false);
+  const [shareRewardCooldown, setShareRewardCooldown] = useState<{
+    canClaim: boolean;
+    timeUntilNextShare: number;
+    lastShareTime?: number;
+  }>({ canClaim: true, timeUntilNextShare: 0 });
+  const [shareRewardSuccess, setShareRewardSuccess] = useState(false);
 
   // Memoized star and shooting star data for stable animation
   const starData = useMemo(() =>
@@ -177,10 +187,7 @@ export default function UserStats() {
         shareStats.push(`🎁 ${totalRewards} Rewards Claimed`);
       }
       
-      // Add games played
-      if (localGamesPlayed > 0) {
-        shareStats.push(`🎮 ${localGamesPlayed} Games`);
-      }
+   
       
       // Add best score
       const bestScore = Math.max(localBestScore || 0, localBestFromScores);
@@ -188,6 +195,22 @@ export default function UserStats() {
         shareStats.push(`🏆 ${bestScore.toLocaleString()} Best Score`);
       }
       
+      // Add amount won if > 0
+      if(stats?.giftBoxStats){
+        const totalArb = stats.giftBoxStats.totalArb || 0;
+        const totalPepe = stats.giftBoxStats.totalPepe || 0;
+        const totalBoop = stats.giftBoxStats.totalBoop || 0;
+        
+        if (totalArb > 0) {
+          shareStats.push(`💰 ${totalArb.toFixed(2)} $ARB`);
+        }
+        if (totalPepe > 0) {
+          shareStats.push(`🐸 ${totalPepe.toLocaleString()} $PEPE`);
+        }
+        if (totalBoop > 0) {
+          shareStats.push(`🎯 ${totalBoop.toLocaleString()} $BOOP`);
+        }
+      }
       // Add average score
       if (localAverageScore > 0) {
         shareStats.push(`📊 ${localAverageScore.toLocaleString()} Avg Score`);
@@ -200,7 +223,16 @@ export default function UserStats() {
       const statsText = shareStats.length > 0 ? shareStats.join(' • ') : 'Just started playing!';
       const username = context?.user?.username || 'WAGMI Blaster Player';
       
-      const shareMessage =  `just CRUSHED it on WAGMI Blaster! 💪\n\n${statsText}\n\n🔥 Y'all think you can beat these stats? I'm waiting... 👀\n Drop your best score below and let's see who's really built different!\n\n#WAGMI Blaster`;
+      const shareMessage = `JUST BAGGED MASSIVE WINS on WAGMI Blaster! 💰
+
+${statsText}
+
+⚡ EARN FAST before the DAILY REWARD POOL disappears! 🔥
+💎 This game is literally PRINTING MONEY — who’s ready to GET RICH? 👀
+
+🎯 Drop your best score below… let’s see who’s really BUILT DIFFERENT!
+
+Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50! 🚀`;
       
       await actions.composeCast({
         text: shareMessage,
@@ -211,6 +243,108 @@ export default function UserStats() {
       console.error('Failed to share stats:', error);
     } finally {
       setSharing(false);
+    }
+  };
+
+  // Share with reward function (6-hour cooldown, gives 2 gift box claims)
+  const shareWithReward = async () => {
+    if (!actions || !address || !context?.user?.fid) {
+      console.error('Required data not available');
+      return;
+    }
+
+    if (!shareRewardCooldown.canClaim) {
+      console.log('Share reward still in cooldown');
+      return;
+    }
+
+    setShareRewardLoading(true);
+    try {
+      // First, share the stats with hyped message
+      await shareStats();
+      
+      // Then claim the share reward
+      const authHeaders = generateAuthHeaders();
+      const response = await fetch('/api/share-reward', {
+        method: 'POST',
+        headers: {
+          ...authHeaders,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userAddress: address,
+          fid: context.user.fid
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setShareRewardSuccess(true);
+        // Refresh stats to show updated gift box claims
+        await fetchStats();
+        // Update cooldown state
+        setShareRewardCooldown({
+          canClaim: false,
+          timeUntilNextShare: 6 * 60 * 60 * 1000, // 6 hours in ms
+          lastShareTime: Date.now()
+        });
+        
+        // Hide success message after 3 seconds
+        setTimeout(() => setShareRewardSuccess(false), 3000);
+      } else {
+        console.error('Failed to claim share reward:', result.error);
+        if (result.timeUntilNextShare) {
+          setShareRewardCooldown({
+            canClaim: false,
+            timeUntilNextShare: result.timeUntilNextShare,
+            lastShareTime: result.lastShareTime
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error sharing with reward:', error);
+    } finally {
+      setShareRewardLoading(false);
+    }
+  };
+
+  // Check share reward eligibility
+  const checkShareRewardEligibility = async () => {
+    if (!address || !context?.user?.fid) return;
+
+    try {
+      const authHeaders = generateAuthHeaders();
+      const response = await fetch(`/api/share-reward?userAddress=${address}&fid=${context.user.fid}`, {
+        headers: {
+          ...authHeaders,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setShareRewardCooldown({
+          canClaim: result.canClaim,
+          timeUntilNextShare: result.timeUntilNextShare || 0,
+          lastShareTime: result.lastShareTime
+        });
+      }
+    } catch (error) {
+      console.error('Error checking share reward eligibility:', error);
+    }
+  };
+
+  // Format time remaining for cooldown
+  const formatTimeRemaining = (ms: number): string => {
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else {
+      return `${minutes}m`;
     }
   };
 
@@ -382,6 +516,7 @@ export default function UserStats() {
     if (address) {
       fetchStats();
       fetchEthBalance();
+      checkShareRewardEligibility();
     }
     // Always get best score and games played from localStorage regardless of wallet connection
     getBestScoreFromStorage();
@@ -790,10 +925,35 @@ export default function UserStats() {
                    </svg>
                    <span className="text-sm">{sharing ? 'SHARING...' : 'SHARE'}</span>
                  </motion.button>
+
                  
                  {/* Debug button (remove in production) */}
                 
               </div>
+              
+                 {/* Share with Reward Button */}
+                 <motion.button
+                   onClick={shareWithReward}
+                   disabled={shareRewardLoading || !shareRewardCooldown.canClaim}
+                   className={`font-medium py-2 px-4 flex items-center space-x-2 transition-all duration-300 ${
+                     shareRewardCooldown.canClaim 
+                       ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600' 
+                       : 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                   }`}
+                   whileHover={shareRewardCooldown.canClaim ? { scale: 1.02 } : {}}
+                   whileTap={shareRewardCooldown.canClaim ? { scale: 0.98 } : {}}
+                   style={{marginTop:"13px"}}
+                 >
+                   <FontAwesomeIcon icon={faRocket} className="text-sm" />
+                   <span className="text-sm">
+                     {shareRewardLoading 
+                       ? 'SHARING...' 
+                       : shareRewardCooldown.canClaim 
+                         ? 'SHARE + 2 CLAIMS 🚀' 
+                         : `COOLDOWN: ${formatTimeRemaining(shareRewardCooldown.timeUntilNextShare)}`
+                     }
+                   </span>
+                 </motion.button>
           </div>
         </div>
       </motion.div>
@@ -1036,7 +1196,32 @@ export default function UserStats() {
         }
       `}</style>
         </div>
-          </div>
+
+        {/* Share Reward Success Notification */}
+        <AnimatePresence>
+          {shareRewardSuccess && (
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 50, scale: 0.9 }}
+              className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50"
+            >
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-4 rounded-xl shadow-2xl border border-green-400/30 backdrop-blur-sm">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                    <FontAwesomeIcon icon={faRocket} className="text-white text-sm" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm">🚀 SHARE REWARD CLAIMED!</div>
+                    <div className="text-xs opacity-90">+2 Gift Box Claims Added - Keep Earning!</div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+  
   );
 }
 

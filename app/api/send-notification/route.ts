@@ -1,8 +1,8 @@
 import { notificationDetailsSchema } from "@farcaster/miniapp-core";
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { setUserNotificationDetails } from "@/lib/kv";
-import { sendFrameNotification } from "@/lib/notifs";
+import { setUserNotificationDetails } from "@/docs/lib/kv";
+import { sendFrameNotification } from "@/docs/lib/notifs";
 
 const requestSchema = z.object({
   fid: z.number(),

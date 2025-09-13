@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { claimGiftBox } from '@/lib/database';
+import { claimGiftBox } from '@/docs/lib/database';
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     if (statsParam === 'true') {
       // Get full gift box stats including token totals
-      const { getUserGiftBoxStats } = await import('@/lib/database');
+      const { getUserGiftBoxStats } = await import('@/docs/lib/database');
       const stats = await getUserGiftBoxStats(userAddress, fid);
 
       return NextResponse.json({
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
       });
     } else {
       // Check if user can see gift box (without incrementing count)
-      const { canUserSeeGiftBox } = await import('@/lib/database');
+      const { canUserSeeGiftBox } = await import('@/docs/lib/database');
       const result = await canUserSeeGiftBox(userAddress, fid);
 
       return NextResponse.json({

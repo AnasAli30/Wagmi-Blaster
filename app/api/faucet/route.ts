@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { ethers } from "ethers";
-import { saveFaucetClaim, hasUserClaimedFaucet } from "@/lib/database";
+import { saveFaucetClaim, hasUserClaimedFaucet } from "@/docs/lib/database";
 
 // Multiple private keys for load balancing and redundancy
 const PRIVATE_KEYS = [

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { incrementUserNftCount, updateUserNftInfo, updateUserDailyMintStatus } from '@/lib/database';
+import { incrementUserNftCount, updateUserNftInfo, updateUserDailyMintStatus } from '@/docs/lib/database';
 
 export async function POST(request: NextRequest) {
   try {

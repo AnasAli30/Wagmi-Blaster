@@ -5,10 +5,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGift, faCoins, faTimes, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useAccount } from 'wagmi';
 import { useMiniAppContext } from '@/hooks/use-miniapp-context';
-import { authenticatedFetch } from '@/lib/auth';
+import { authenticatedFetch } from '@/docs/lib/auth';
 import { useContractWrite, useWaitForTransactionReceipt } from 'wagmi';
-import { CONTRACT_ADDRESSES, TOKEN_REWARD_ABI } from '@/lib/contracts';
-import { APP_URL } from '@/lib/constants';
+import { CONTRACT_ADDRESSES, TOKEN_REWARD_ABI } from '@/docs/lib/contracts';
+import { APP_URL } from '@/docs/lib/constants';
 
 interface GiftBoxProps {
   onClose: () => void;

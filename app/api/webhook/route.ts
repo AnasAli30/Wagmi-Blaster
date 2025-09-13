@@ -7,8 +7,8 @@ import {
   import {
     deleteUserNotificationDetails,
     setUserNotificationDetails,
-  } from "@/lib/kv";
-  import { sendFrameNotification } from "@/lib/notifs";
+  } from "@/docs/lib/kv";
+  import { sendFrameNotification } from "@/docs/lib/notifs";
   
   export async function POST(request: NextRequest) {
     const requestJson = await request.json();

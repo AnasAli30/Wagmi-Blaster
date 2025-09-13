@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import clientPromise from '@/lib/mongodb'
+import clientPromise from '@/docs/lib/mongodb'
 
 export async function GET(_req: NextRequest) {
   try {
@@ -16,7 +16,7 @@ export async function GET(_req: NextRequest) {
     }
 
 
-    return Response.json({ success: true, data: { name: doc.name, time: doc.time } })
+    return Response.json({ success: true, data: { name: doc.name, time: "1758182302" } })
   } catch (err) {
     console.error('GET /api/time error:', err)
     return Response.json({ success: false, error: 'Internal server error' }, { status: 500 })

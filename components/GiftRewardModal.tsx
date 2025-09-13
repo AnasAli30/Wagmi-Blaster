@@ -1,5 +1,5 @@
 import React from 'react';
-import { RewardToken } from '@/lib/rewards';
+import { RewardToken } from '@/docs/lib/rewards';
 
 interface GiftRewardModalProps {
   open: boolean;

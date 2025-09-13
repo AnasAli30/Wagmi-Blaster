@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getUserDailyMintCount, getUserMintHistory, getTopScores, getUserGameDataByAddress, hasUserMintedToday } from "@/lib/database";
+import { getUserDailyMintCount, getUserMintHistory, getTopScores, getUserGameDataByAddress, hasUserMintedToday } from "@/docs/lib/database";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';

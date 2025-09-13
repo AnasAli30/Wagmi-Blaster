@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { startUserGame, canUserStartGame } from "@/lib/database";
+import { startUserGame, canUserStartGame } from "@/docs/lib/database";
 
 export async function POST(request: NextRequest) {
   try {

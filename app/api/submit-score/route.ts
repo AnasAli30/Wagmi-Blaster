@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { saveGameScore } from "@/lib/database";
+import { saveGameScore } from "@/docs/lib/database";
 
 export async function POST(request: NextRequest) {
   try {
