@@ -258,7 +258,14 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
       return;
     }
 
+    // Immediately disable button and start cooldown
     setShareRewardLoading(true);
+    setShareRewardCooldown({
+      canClaim: false,
+      timeUntilNextShare: 6 * 60 * 60 * 1000, // 6 hours in ms
+      lastShareTime: Date.now()
+    });
+
     try {
       // First, share the stats with hyped message
       await shareStats();
@@ -283,17 +290,12 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
         setShareRewardSuccess(true);
         // Refresh stats to show updated gift box claims
         await fetchStats();
-        // Update cooldown state
-        setShareRewardCooldown({
-          canClaim: false,
-          timeUntilNextShare: 6 * 60 * 60 * 1000, // 6 hours in ms
-          lastShareTime: Date.now()
-        });
         
         // Hide success message after 3 seconds
         setTimeout(() => setShareRewardSuccess(false), 3000);
       } else {
         console.error('Failed to claim share reward:', result.error);
+        // If server says cooldown is different, update it
         if (result.timeUntilNextShare) {
           setShareRewardCooldown({
             canClaim: false,
@@ -304,6 +306,12 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
       }
     } catch (error) {
       console.error('Error sharing with reward:', error);
+      // On error, re-enable the button
+      setShareRewardCooldown({
+        canClaim: true,
+        timeUntilNextShare: 0,
+        lastShareTime: undefined
+      });
     } finally {
       setShareRewardLoading(false);
     }
@@ -340,11 +348,14 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
   const formatTimeRemaining = (ms: number): string => {
     const hours = Math.floor(ms / (1000 * 60 * 60));
     const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((ms % (1000 * 60)) / 1000);
     
     if (hours > 0) {
-      return `${hours}h ${minutes}m`;
+      return `${hours}h ${minutes}m ${seconds}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
     } else {
-      return `${minutes}m`;
+      return `${seconds}s`;
     }
   };
 
@@ -523,6 +534,33 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
     getGamesPlayedFromStorage();
     getCalculatedStats();
   }, [address]);
+
+  // Real-time countdown for share reward cooldown
+  useEffect(() => {
+    if (!shareRewardCooldown.canClaim && shareRewardCooldown.timeUntilNextShare > 0) {
+      const interval = setInterval(() => {
+        setShareRewardCooldown(prev => {
+          const newTimeRemaining = prev.timeUntilNextShare - 1000; // Subtract 1 second
+          
+          if (newTimeRemaining <= 0) {
+            // Cooldown expired, user can claim again
+            return {
+              canClaim: true,
+              timeUntilNextShare: 0,
+              lastShareTime: prev.lastShareTime
+            };
+          }
+          
+          return {
+            ...prev,
+            timeUntilNextShare: newTimeRemaining
+          };
+        });
+      }, 1000); // Update every second
+
+      return () => clearInterval(interval);
+    }
+  }, [shareRewardCooldown.canClaim, shareRewardCooldown.timeUntilNextShare]);
 
   // Listen for localStorage changes to update best score and games played in real-time
   useEffect(() => {
@@ -936,12 +974,12 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
                    onClick={shareWithReward}
                    disabled={shareRewardLoading || !shareRewardCooldown.canClaim}
                    className={`font-medium py-2 px-4 flex items-center space-x-2 transition-all duration-300 ${
-                     shareRewardCooldown.canClaim 
-                       ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600' 
-                       : 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                     shareRewardCooldown.canClaim && !shareRewardLoading
+                       ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600 shadow-lg' 
+                       : 'bg-gray-500 text-gray-300 cursor-not-allowed opacity-60'
                    }`}
-                   whileHover={shareRewardCooldown.canClaim ? { scale: 1.02 } : {}}
-                   whileTap={shareRewardCooldown.canClaim ? { scale: 0.98 } : {}}
+                   whileHover={shareRewardCooldown.canClaim && !shareRewardLoading ? { scale: 1.02 } : {}}
+                   whileTap={shareRewardCooldown.canClaim && !shareRewardLoading ? { scale: 0.98 } : {}}
                    style={{marginTop:"13px"}}
                  >
                    <FontAwesomeIcon icon={faRocket} className="text-sm" />
