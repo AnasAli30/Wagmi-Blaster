@@ -242,7 +242,9 @@ export default function Leaderboard() {
     };
   };
 
-  const displayTime = timerLoading ? '...' : `${timeLeft.days}d ${timeLeft.hours}h`;
+  const displayTime = timerLoading ? '...' : 
+    (timeLeft.days === 0 && timeLeft.hours === 0) ? 'Coming Soon' : 
+    `${timeLeft.days}d ${timeLeft.hours}h`;
 
   // Get reward amount for each rank
   const getRewardAmount = (rank: number) => {
