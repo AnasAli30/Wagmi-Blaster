@@ -93,6 +93,11 @@ export default function UserStats() {
   }>({ canClaim: true, timeUntilNextShare: 0 });
   const [shareRewardSuccess, setShareRewardSuccess] = useState(false);
 
+  // Follow reward states
+  const [followRewardLoading, setFollowRewardLoading] = useState(false);
+  const [followRewardClaimed, setFollowRewardClaimed] = useState(false);
+  const [followRewardSuccess, setFollowRewardSuccess] = useState(false);
+
   // Memoized star and shooting star data for stable animation
   const starData = useMemo(() =>
     Array.from({ length: 30 }, (_, i) => {
@@ -336,6 +341,80 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
     }
   };
 
+  // Follow with reward function (one-time only, gives 1 gift box claim)
+  const followWithReward = async () => {
+    if (!actions || !address || !context?.user?.fid) {
+      console.error('Required data not available');
+      return;
+    }
+
+    if (followRewardClaimed) {
+      console.log('Follow reward already claimed');
+      return;
+    }
+
+    setFollowRewardLoading(true);
+    try {
+      // First, follow the profile
+      await actions.viewProfile({ fid: 249702 });
+      
+      // Then claim the follow reward
+      const authHeaders = generateAuthHeaders();
+      const response = await fetch('/api/follow-reward', {
+        method: 'POST',
+        headers: {
+          ...authHeaders,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userAddress: address,
+          fid: context.user.fid
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setFollowRewardSuccess(true);
+        setFollowRewardClaimed(true);
+        // Refresh stats to show updated gift box claims
+        await fetchStats();
+        
+        // Hide success message after 3 seconds
+        setTimeout(() => setFollowRewardSuccess(false), 3000);
+      } else {
+        console.error('Failed to claim follow reward:', result.error);
+      }
+    } catch (error) {
+      console.error('Error following with reward:', error);
+    } finally {
+      setFollowRewardLoading(false);
+    }
+  };
+
+  // Check follow reward eligibility
+  const checkFollowRewardEligibility = async () => {
+    if (!address || !context?.user?.fid) return;
+
+    try {
+      const authHeaders = generateAuthHeaders();
+      const response = await fetch(`/api/follow-reward?userAddress=${address}&fid=${context.user.fid}`, {
+        headers: {
+          ...authHeaders,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setFollowRewardClaimed(result.alreadyClaimed || false);
+      }
+    } catch (error) {
+      console.error('Error checking follow reward eligibility:', error);
+    }
+  };
+
   // Format time remaining for cooldown
   const formatTimeRemaining = (ms: number): string => {
     const hours = Math.floor(ms / (1000 * 60 * 60));
@@ -517,6 +596,7 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
       fetchStats();
       fetchEthBalance();
       checkShareRewardEligibility();
+      checkFollowRewardEligibility();
     }
     // Always get best score and games played from localStorage regardless of wallet connection
     getBestScoreFromStorage();
@@ -954,6 +1034,30 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
                      }
                    </span>
                  </motion.button>
+
+                 {/* Follow with Reward Button */}
+                 <motion.button
+                   onClick={followWithReward}
+                   disabled={followRewardLoading || followRewardClaimed}
+                   className={`font-medium py-2 px-4 flex items-center space-x-2 transition-all duration-300 ${
+                     !followRewardClaimed 
+                       ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600' 
+                       : 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                   }`}
+                   whileHover={!followRewardClaimed ? { scale: 1.02 } : {}}
+                   whileTap={!followRewardClaimed ? { scale: 0.98 } : {}}
+                   style={{marginTop:"13px"}}
+                 >
+                   <FontAwesomeIcon icon={faUser} className="text-sm" />
+                   <span className="text-sm">
+                     {followRewardLoading 
+                       ? 'FOLLOWING...' 
+                       : followRewardClaimed 
+                         ? 'FOLLOWED + 1 CLAIM ✅' 
+                         : 'FOLLOW + 1 CLAIM 👥'
+                     }
+                   </span>
+                 </motion.button>
           </div>
         </div>
       </motion.div>
@@ -1214,6 +1318,30 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
                   <div>
                     <div className="font-bold text-sm">🚀 SHARE REWARD CLAIMED!</div>
                     <div className="text-xs opacity-90">+2 Gift Box Claims Added - Keep Earning!</div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Follow Reward Success Notification */}
+        <AnimatePresence>
+          {followRewardSuccess && (
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 50, scale: 0.9 }}
+              className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50"
+            >
+              <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-4 rounded-xl shadow-2xl border border-blue-400/30 backdrop-blur-sm">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                    <FontAwesomeIcon icon={faUser} className="text-white text-sm" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm">👥 FOLLOW REWARD CLAIMED!</div>
+                    <div className="text-xs opacity-90">+1 Gift Box Claim Added - Thanks for Following!</div>
                   </div>
                 </div>
               </div>
