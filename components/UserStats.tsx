@@ -98,6 +98,15 @@ export default function UserStats() {
   const [followRewardClaimed, setFollowRewardClaimed] = useState(false);
   const [followRewardSuccess, setFollowRewardSuccess] = useState(false);
 
+  // Mini app reward states
+  const [miniAppRewardLoading, setMiniAppRewardLoading] = useState(false);
+  const [miniAppRewardCooldown, setMiniAppRewardCooldown] = useState<{
+    canClaim: boolean;
+    timeUntilNextMiniApp: number;
+    lastMiniAppTime?: number;
+  }>({ canClaim: true, timeUntilNextMiniApp: 0 });
+  const [miniAppRewardSuccess, setMiniAppRewardSuccess] = useState(false);
+
   // Memoized star and shooting star data for stable animation
   const starData = useMemo(() =>
     Array.from({ length: 30 }, (_, i) => {
@@ -415,6 +424,98 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
     }
   };
 
+  // Mini app with reward function (6-hour cooldown, gives 2 gift box claims)
+  const openMiniAppWithReward = async () => {
+    if (!actions || !address || !context?.user?.fid) {
+      console.error('Required data not available');
+      return;
+    }
+
+    if (!miniAppRewardCooldown.canClaim) {
+      console.log('Mini app reward still in cooldown');
+      return;
+    }
+
+    setMiniAppRewardLoading(true);
+    try {
+      // First, open the mini app
+      await actions.openMiniApp({
+        url: "https://farcaster.xyz/miniapps/-T_OQBmVvoW2/monad-realm"
+      });
+      
+      // Then claim the mini app reward
+      const authHeaders = generateAuthHeaders();
+      const response = await fetch('/api/mini-app-reward', {
+        method: 'POST',
+        headers: {
+          ...authHeaders,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userAddress: address,
+          fid: context.user.fid
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setMiniAppRewardSuccess(true);
+        // Refresh stats to show updated gift box claims
+        await fetchStats();
+        // Update cooldown state
+        setMiniAppRewardCooldown({
+          canClaim: false,
+          timeUntilNextMiniApp: 6 * 60 * 60 * 1000, // 6 hours in ms
+          lastMiniAppTime: Date.now()
+        });
+        
+        // Hide success message after 3 seconds
+        setTimeout(() => setMiniAppRewardSuccess(false), 3000);
+      } else {
+        console.error('Failed to claim mini app reward:', result.error);
+        if (result.timeUntilNextMiniApp) {
+          setMiniAppRewardCooldown({
+            canClaim: false,
+            timeUntilNextMiniApp: result.timeUntilNextMiniApp,
+            lastMiniAppTime: result.lastMiniAppTime
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error opening mini app with reward:', error);
+    } finally {
+      setMiniAppRewardLoading(false);
+    }
+  };
+
+  // Check mini app reward eligibility
+  const checkMiniAppRewardEligibility = async () => {
+    if (!address || !context?.user?.fid) return;
+
+    try {
+      const authHeaders = generateAuthHeaders();
+      const response = await fetch(`/api/mini-app-reward?userAddress=${address}&fid=${context.user.fid}`, {
+        headers: {
+          ...authHeaders,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setMiniAppRewardCooldown({
+          canClaim: result.canClaim,
+          timeUntilNextMiniApp: result.timeUntilNextMiniApp || 0,
+          lastMiniAppTime: result.lastMiniAppTime
+        });
+      }
+    } catch (error) {
+      console.error('Error checking mini app reward eligibility:', error);
+    }
+  };
+
   // Format time remaining for cooldown
   const formatTimeRemaining = (ms: number): string => {
     const hours = Math.floor(ms / (1000 * 60 * 60));
@@ -597,6 +698,7 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
       fetchEthBalance();
       checkShareRewardEligibility();
       checkFollowRewardEligibility();
+      checkMiniAppRewardEligibility();
     }
     // Always get best score and games played from localStorage regardless of wallet connection
     getBestScoreFromStorage();
@@ -1058,6 +1160,30 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
                      }
                    </span>
                  </motion.button>
+
+                 {/* Mini App with Reward Button */}
+                 <motion.button
+                   onClick={openMiniAppWithReward}
+                   disabled={miniAppRewardLoading || !miniAppRewardCooldown.canClaim}
+                   className={`font-medium py-2 px-4 flex items-center space-x-2 transition-all duration-300 ${
+                     miniAppRewardCooldown.canClaim 
+                       ? 'bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600' 
+                       : 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                   }`}
+                   whileHover={miniAppRewardCooldown.canClaim ? { scale: 1.02 } : {}}
+                   whileTap={miniAppRewardCooldown.canClaim ? { scale: 0.98 } : {}}
+                   style={{marginTop:"13px"}}
+                 >
+                   <FontAwesomeIcon icon={faExternalLinkAlt} className="text-sm" />
+                   <span className="text-sm">
+                     {miniAppRewardLoading 
+                       ? 'OPENING...' 
+                       : miniAppRewardCooldown.canClaim 
+                         ? 'OPEN MINI APP + 2 CLAIMS 🚀' 
+                         : `COOLDOWN: ${formatTimeRemaining(miniAppRewardCooldown.timeUntilNextMiniApp)}`
+                     }
+                   </span>
+                 </motion.button>
           </div>
         </div>
       </motion.div>
@@ -1342,6 +1468,30 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
                   <div>
                     <div className="font-bold text-sm">👥 FOLLOW REWARD CLAIMED!</div>
                     <div className="text-xs opacity-90">+1 Gift Box Claim Added - Thanks for Following!</div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mini App Reward Success Notification */}
+        <AnimatePresence>
+          {miniAppRewardSuccess && (
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 50, scale: 0.9 }}
+              className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50"
+            >
+              <div className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-6 py-4 rounded-xl shadow-2xl border border-green-400/30 backdrop-blur-sm">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                    <FontAwesomeIcon icon={faExternalLinkAlt} className="text-white text-sm" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm">🚀 MINI APP REWARD CLAIMED!</div>
+                    <div className="text-xs opacity-90">+2 Gift Box Claims Added - Thanks for Exploring!</div>
                   </div>
                 </div>
               </div>
