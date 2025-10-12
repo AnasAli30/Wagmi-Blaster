@@ -440,7 +440,7 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
     try {
       // First, open the mini app
       await actions.openMiniApp({
-        url: "https://farcaster.xyz/miniapps/-T_OQBmVvoW2/monad-realm"
+        url: "https://farcaster.xyz/miniapps/cFGpvpDI-nDJ/base-jump"
       });
       
       // Then claim the mini app reward
