@@ -1,391 +1,206 @@
-# Chain Crush
+## <i class="fa-solid fa-rocket"></i> WAGMI Blaster – Farcaster Mini App
 
-The template demonstrates all Mini App capabilities and lets you easily modify it, so you can build Mini Apps.
+Interactive arcade mini-app for Farcaster with Phaser.js gameplay, onchain rewards, NFT minting, secure API middleware, and leaderboards. The UI/assets reference both "WAGMI Blaster" across the codebase.
 
-## Scoring System
+---
 
-ChainCrush uses a dual scoring system:
+## <i class="fa-solid fa-layer-group"></i> Tech Stack
+- Next.js 14 (App Router), React 18, TypeScript, TailwindCSS
+- Phaser 3 for game rendering
+- Farcaster Mini App SDKs: `@farcaster/miniapp-*`, `@farcaster/frame-*`
+- Wagmi + Viem + Ethers v6 for wallet/chain
+- MongoDB (+ optional Upstash Redis)
+- React Query for client caching
+- Font Awesome React for icons
 
-### Current Season Score (`currentSeasonScore`)
-- Updated every time a user plays a game
-- Represents the user's score for the current season
-- Used for leaderboard rankings and rewards
+---
 
-### All-Time High (`score`)
-- Tracks the user's best score ever achieved (stored in the `score` field)
-- Only updated when a user beats their previous best
-- Displayed alongside current season score in the leaderboard
-
-### How it Works
-1. When a user submits a score, it always updates their `currentSeasonScore`
-2. If the new score is higher than their current `score` (ATH), both scores are updated
-3. The leaderboard displays both scores for each player
-4. Rankings are based on `currentSeasonScore` for season rewards
-
-### Migration
-To migrate existing data to the new scoring system, run:
+## <i class="fa-solid fa-bolt"></i> Quickstart
+1) Install
 ```bash
-POST /api/migrate-scoring
+pnpm install
 ```
 
-## Cloning the Template
+2) Configure environment
+Create `.env.local` using `ENV_SETUP.md` (and `FAUCET_SETUP.md` if using faucet).
 
-You can the following command to clone the Mini App template to your local machine:
-
-```
-git clone https://github.com/monad-developers/monad-miniapp-template.git
-```
-
-### Install the dependencies
-
-```
-yarn
-```
-
-### Copy `.env.example` over to `.env.local`
-
+3) Run
 ```bash
-cp .env.example .env.local
+pnpm dev
 ```
 
-### Run the template
-
-```bash
-yarn run dev
-```
-
-### View the App in Warpcast Embed tool
-
-Warpcast has a neat [Embed tool](https://warpcast.com/~/developers/mini-apps/embed) that you can use to inspect the Mini App before you publish it.
-
-Unfortunately, the embed tool can only work with remote URL. Inputting a localhost URL does not work.
-
-As a workaround, you may make the local app accessible remotely using a tool like `cloudflared` or `ngrok`. In this guide we will use `cloudflared`.
-
-#### Install Cloudflared
-
-```bash
-brew install cloudflared
-```
-
-For more installation options see the [official docs](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/).
-
-#### Expose localhost
-
-Run the following command in your terminal:
-
+4) Optional: expose to Warpcast Embed
 ```bash
 cloudflared tunnel --url http://localhost:3000
 ```
+Set `NEXT_PUBLIC_URL` to the tunnel URL.
 
-Be sure to specify the correct port for your local server.
+---
 
-#### Set `NEXT_PUBLIC_URL` environment variable in `.env.local` file
+## <i class="fa-solid fa-key"></i> Environment
+See `ENV_SETUP.md` for full list. Important:
+- `API_SECRET_KEY`, `NEXT_PUBLIC_API_SECRET_KEY`
+- `SERVER_PRIVATE_KEY`
+- `MONGODB_URI`, `RPC_URL`
+- `DAILY_MINT_LIMIT`
+- Optional Redis: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
 
-```bash
-NEXT_PUBLIC_URL=<url-from-cloudflared-or-ngrok>
-```
+Faucet/setup specifics in `FAUCET_SETUP.md`.
 
-#### Use the provided url
+---
 
-`cloudflared` will generate a random subdomain and print it in the terminal for you to use. Any traffic to this URL will get sent to your local server.
+## <i class="fa-solid fa-shield-halved"></i> Security Middleware
+All POST `/api/*` routes are protected by a replay-resistant fused key scheme (`middleware.ts`).
 
-Enter the provided URL in the [Warpcast Embed tool](https://warpcast.com/~/developers/mini-apps/embed).
-
-![embed-tool](https://docs.monad.xyz/img/guides/farcaster-miniapp/1.png)
-
-Let's investigate the various components of the template.
-
-## Customizing the Mini App Embed
-
-Mini App Embed is how the Mini App shows up in the feed or in a chat conversation when the URL of the app is shared.
-
-The Mini App Embed looks like this:
-
-![embed-preview](https://docs.monad.xyz/img/guides/farcaster-miniapp/2.png)
-
-You can customize this by editing the file `app/page.tsx`:
-
-```js
-...
-
-const appUrl = env.NEXT_PUBLIC_URL;
-
-const frame = {
-  version: "next",
-  imageUrl: `${appUrl}/images/feed.png`, // Embed image URL (3:2 image ratio)
-  button: {
-    title: "Template", // Text on the embed button
-    action: {
-      type: "launch_frame",
-      name: "Chain Crush",
-      url: appUrl, // URL that is opened when the embed button is tapped or clicked.
-      splashImageUrl: `${appUrl}/images/splash.png`,
-      splashBackgroundColor: "#f7f7f7",
-    },
-  },
-};
-
-...
-```
-
-You can either edit the URLs for the images or replace the images in `public/images` folder in the template.
-
-Once you are happy with the changes, click `Refetch` in the Embed tool to get the latest configuration.
-
-> [!NOTE]
-> If you are developing locally, ensure that your Next.js app is running locally and the cloudflare tunnel is open. 
-
-
-## Customizing the Splash Screen
-
-Upon opening the Mini App, the first thing the user will see is the Splash screen:
-
-![splash-screen](https://docs.monad.xyz/img/guides/farcaster-miniapp/3.png)
-
-You can edit the `app/page.tsx` file to customize the Splash screen.
-
-```js
-...
-
-const appUrl = env.NEXT_PUBLIC_URL;
-
-const frame = {
-  version: "next",
-  imageUrl: `${appUrl}/images/feed.png`,
-  button: {
-    title: "Launch Template",
-    action: {
-      type: "launch_frame",
-      name: "Chain Crush",
-      url: appUrl,
-      splashImageUrl: `${appUrl}/images/splash.png`, // App icon in the splash screen (200px * 200px)
-      splashBackgroundColor: "#f7f7f7", // Splash screen background color
-    },
-  },
-};
-
-...
-```
-
-For `splashImageUrl`, you can either change the URL or replace the image in `public/images` folder in the template.
-
-## Modifying the Mini App
-
-Upon opening the template Mini App, you should see a screen like this:
-
-<img width="1512" alt="4" src="https://github.com/user-attachments/assets/259a3dd2-17ee-4afd-8942-ad83a92f6335" />
-
-
-The code for this screen is in the `components/pages/app.tsx` file:
-
-```tsx
-export default function Home() {
-  const { context } = useMiniAppContext();
-  return (
-    // SafeAreaContainer component makes sure that the app margins are rendered properly depending on which client is being used.
-    <SafeAreaContainer insets={context?.client.safeAreaInsets}>
-      {/* You replace the Demo component with your home component */}
-      <Demo />
-    </SafeAreaContainer>
-  )
-}
-```
-
-You can remove or edit the code in this file to build your Mini App.
-
-### Accessing User Context
-
-<img width="1130" alt="5" src="https://github.com/user-attachments/assets/4448c141-d159-4538-abda-a175d02330a7" />
-
-
-Your Mini App receives various information about the user, including `username`, `fid`, `displayName`, `pfpUrl` and other fields.
-
-The template provides a helpful hook `useMiniAppContext` that you can use to access these fields:
-
-```js
-export function User() {
-    const { context } = useMiniAppContext();
-    return <p>{context.user.username}</p>
-}
-```
-
-The template also provide an example of the same in `components/Home/User.tsx` file.
-
-You can learn more about Context [here](https://miniapps.farcaster.xyz/docs/sdk/context).
-
-### Performing App Actions
-
-![composeCast](https://docs.monad.xyz/img/guides/farcaster-miniapp/composeCast.gif)
-
-Mini Apps have the capability to perform native actions that enhance the user experience!
-
-Actions like:
-
-- `addFrame`: Allows the user to save (bookmark) the app in a dedicated section
-- `composeCast`: Allows the MiniApp to prompt the user to cast with prefilled text and media
-- `viewProfile`: Presents a profile of a Farcaster user in a client native UI
-
-Learn more about Mini App actions [here](https://miniapps.farcaster.xyz/docs/sdk/actions/add-frame)
-
-The template provides an easy way to access the actions via the `useMiniAppContext` hook!
-
-```js
-const { actions } = useMiniAppContext();
-```
-
-An example for the same can be found in `components/Home/FarcasterActions.tsx` file.
-
-### Prompting Wallet Actions
-
-<img width="1130" alt="6" src="https://github.com/user-attachments/assets/7dc46f05-bcbb-43b4-a0e6-4f421648dfc6" />
-
-Every user of Warpcast has a Warpcast wallet with Monad Testnet support.
-
-**Mini Apps can prompt the user to perform onchain actions**!
-
-The template provides an example for the same in `components/Home/WalletActions.tsx` file.
-
-```js
-export function WalletActions() {
-    ...
-
-    async function sendTransactionHandler() {
-        sendTransaction({
-            to: "0x7f748f154B6D180D35fA12460C7E4C631e28A9d7",
-            value: parseEther("1"),
-        });
-    }
-
-    ...
-}
-```
-
-> [!WARNING]
-> The Warpcast wallet supports multiple networks. It is recommended that you ensure that the right network is connected before prompting wallet actions.
-
-You can use viem's `switchChain` or equivalent to prompt a chain switch.
-
-```js
-// Switching to Monad Testnet
-switchChain({ chainId: 10143 });
-```
-
-The template has an example for the same in the `components/Home/WalletActions.tsx` file.
-:::
-
-## Modifying the `farcaster.json` file
-
-When publishing the Mini App you will need to have a `farcaster.json` file that follows the specification.
-
-You can edit the `app/.well-known/farcaster.json/route.ts` file with your app details before publishing the app!
-
+Client flow (ethers v6):
 ```ts
-...
-
-const appUrl = process.env.NEXT_PUBLIC_URL;
-const farcasterConfig = {
-    // accountAssociation details are required to associated the published app with it's author
-    accountAssociation: {
-        "header": "",
-        "payload": "",
-        "signature": ""
-    },
-    frame: {
-        version: "1",
-        name: "Chain Crush",
-        iconUrl: `${appUrl}/images/icon.png`, // Icon of the app in the app store
-        homeUrl: `${appUrl}`, // Default launch URL
-        imageUrl: `${appUrl}/images/feed.png`, // Default image to show if shared in a feed.
-        screenshotUrls: [], // Visual previews of the app
-        tags: ["monad", "farcaster", "miniapp", "template"], // Descriptive tags for search
-        primaryCategory: "developer-tools",
-        buttonTitle: "Launch Template",
-        splashImageUrl: `${appUrl}/images/splash.png`, // URL of image to show on loading screen.	
-        splashBackgroundColor: "#ffffff", // Hex color code to use on loading screen.
-    }
-};
-
-...
+import { keccak256, toUtf8Bytes } from 'ethers'
+const randomString = crypto.getRandomValues(new Uint32Array(4)).join('-')
+const fusedKey = keccak256(toUtf8Bytes(process.env.NEXT_PUBLIC_API_SECRET_KEY! + randomString)).slice(2)
+await fetch('/api/submit-score', {
+  method: 'POST',
+  headers: {
+    'content-type': 'application/json',
+    'x-random-string': randomString,
+    'x-fused-key': fusedKey,
+  },
+  body: JSON.stringify({ /* payload */ }),
+})
 ```
 
-You can learn more about publishing the Mini App and other manifest properties [here](https://miniapps.farcaster.xyz/docs/guides/publishing).
+---
 
-## Conclusion
+## <i class="fa-solid fa-gamepad"></i> Game Overview
+**WAGMI Blaster** is a fast-paced arcade shooter where players fire memecoins at lightning speed! Built as a Farcaster Mini App, it combines addictive gameplay with blockchain rewards.
 
-In this guide, you explored Farcaster Mini Apps — the simplest way to create engaging, high-retention, and easily monetizable applications!
+### 🎮 How to Play
+- **Objective**: Fire memecoins as fast as possible to hit targets
+- **Controls**: Tap/click to shoot, aim for high scores
+- **Scoring**: Points based on accuracy, speed, and combo multipliers
+- **Levels**: Progressive difficulty with new challenges
+- **Power-ups**: Special abilities to boost performance
 
-You also discovered the key capabilities of Mini Apps and how you can use the [Chain Crush](https://github.com/monad-developers/monad-miniapp-template) to build your own.
+### 🏆 Game Features
+- **Phaser.js Engine**: Smooth 60fps gameplay with particle effects
+- **Sound Design**: Immersive audio with jump, eat, and game over sounds
+- **Visual Effects**: Combo animations, screen shake, and smooth transitions
+- **Progressive Difficulty**: Each level increases challenge and rewards
+- **Real-time Scoring**: Live score updates with combo multipliers
 
-For more details, check out the official Mini App documentation [here](https://miniapps.farcaster.xyz/).
+### 🎯 Game Mechanics
+- **Shooting**: Tap to fire memecoins at moving targets
+- **Combo System**: Chain hits for multiplier bonuses
+- **Power-ups**: Collect special items for enhanced abilities
+- **Time Pressure**: Limited time per level for maximum intensity
+- **Skill-based**: Higher scores require better aim and timing
 
-# ChainCrush
+### 🏅 Rewards & Progression
+- **Daily Challenges**: Complete daily objectives for bonus rewards
+- **Leaderboards**: Compete with other players globally
+- **NFT Rewards**: Mint unique NFTs based on performance
+- **Token Rewards**: Earn PEPE coins for achievements
+- **Seasonal Rankings**: Track progress across seasons
 
-A Candy Crush game built on Farcaster with NFT minting capabilities.
+## <i class="fa-solid fa-star"></i> Features
+- Phaser gameplay, sounds, animations
+- Farcaster Mini App (frame metadata, launch, actions)
+- Wallet actions via Wagmi/Viem
+- NFT minting and token rewards
+- Season and ATH leaderboards
+- Daily mint limits and faucet
+- Theming and safe-area UI
 
-## Features
+---
 
-- Candy Crush gameplay with Phaser.js
-- NFT minting with blockchain integration
-- Leaderboard system
-- Dark/Light theme support
-- Combo animations and effects
-- Daily mint limits with countdown timers
-- Reward system with PEPE coin distribution
+## <i class="fa-solid fa-diagram-project"></i> Structure
+- `app/` – App Router pages and API routes
+  - `app/page.tsx` – frame metadata and app entry
+  - `app/api/*/route.ts` – backend endpoints
+- `components/` – UI, providers, game (`components/Home/*`, `components/pages/app.tsx`)
+- `docs/lib/*` – server utilities (db, auth, rewards, constants)
+- `contract/` – Solidity contracts and scripts
+- `hooks/` – custom hooks
+- `public/` – assets/images
 
-## Authentication Middleware
+---
 
-The application includes a comprehensive security middleware that protects all POST API routes with replay attack prevention:
+## <i class="fa-solid fa-plug"></i> API Endpoints (overview)
+All POST routes require headers: `x-random-string`, `x-fused-key`.
 
-### How it works:
-1. **Frontend**: Generates a random string and creates a "fused key" using ethers.js keccak256 hash
-2. **Middleware**: Validates requests by recreating the hash and comparing it with the provided fused key (Edge Runtime compatible)
-3. **Database Validation**: API routes can optionally validate keys against database for enhanced replay protection
-4. **Dual Protection**: In-memory cache in middleware + database storage for critical operations
+- POST `/api/start-game` – initialize session
+- POST `/api/submit-score` – body `{ fid, pfpUrl, username?, score, level, duration?, userAddress?, faucetClaimed? }`
+- GET  `/api/leaderboard`
+- GET  `/api/game-leaderboard`
+- GET  `/api/ath-leaderboard`
+- GET  `/api/user-stats`
+- GET  `/api/total-players`
+- POST `/api/mint-nft`
+- POST `/api/burn-nft`
+- POST `/api/get-nft-trait`
+- GET  `/api/nft-minted`
+- POST `/api/send-notification`
+- POST `/api/share-reward`
+- POST `/api/mini-app-reward`
+- POST `/api/claim-gift-box`
+- POST `/api/faucet`
+- GET  `/api/faucet-stats`
+- POST `/api/reset-daily-mints`
+- GET  `/api/time`
+- POST `/api/webhook`
 
-### Security Features:
-- ✅ **Unique Keys**: Each request uses a unique random string
-- ✅ **Ethers.js Integration**: Uses same crypto library as blockchain operations
-- ✅ **Edge Runtime Compatible**: Works with Next.js Edge Runtime
-- ✅ **Dual Replay Protection**: In-memory cache + database validation
-- ✅ **Memory Management**: Automatic cache size limiting
-- ✅ **Database Storage**: Persistent key storage for critical operations
+See implementations under `app/api/*/route.ts` and helpers in `docs/lib/*`.
 
-### Setup:
-1. Create a `.env.local` file in the root directory
-2. Add your secret key:
-   ```
-   API_SECRET_KEY=your-super-secret-key-change-this-in-production
-   NEXT_PUBLIC_API_SECRET_KEY=your-super-secret-key-change-this-in-production
-   ```
-3. The middleware automatically protects all POST routes in `/api/*`
+---
 
-### Protected Routes:
-- `/api/submit-score` - Submit game scores
-- `/api/mint-nft` - Mint NFTs
-- `/api/send-notification` - Send notifications
-- `/api/burn-nft` - Burn NFTs
-- `/api/check-nft-owner` - Check NFT ownership
-- `/api/get-nft-trait` - Get NFT traits
-- `/api/webhook` - Webhook endpoints
+## <i class="fa-solid fa-database"></i> Data & Scoring
+Dual scoring:
 
-### Database Collections:
-- `usedAuthKeys` - Stores used authentication keys with expiration
-- `gameScores` - Game leaderboard data with NFT tracking
+### Current Season Score (`currentSeasonScore`)
+- Updated every game
+- Used for season rankings and rewards
 
-## Development
+### All-Time High (`score`)
+- Best-ever score, updated only when beaten
+- Displayed alongside season score
 
+### How it works
+1. Submitting a score updates `currentSeasonScore`
+2. If greater than `score` (ATH), both update
+3. Leaderboards display both; rankings use season score
+
+MongoDB collections and helpers live under `docs/lib/database.ts`, `docs/lib/leaderboard.ts`.
+
+---
+
+## <i class="fa-solid fa-list-check"></i> Scripts
+```json
+{
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "next lint"
+}
+```
+
+---
+
+## <i class="fa-solid fa-screwdriver-wrench"></i> Build/Run
 ```bash
-npm install
-npm run dev
+pnpm build
+pnpm start
+pnpm lint
 ```
 
-## Environment Variables
+Tailwind config: `tailwind.config.ts`. TypeScript config: `tsconfig.json`. Formatter/Linter: `@biomejs/biome`.
 
-Required environment variables:
-- `API_SECRET_KEY` - Secret key for API authentication
-- `NEXT_PUBLIC_API_SECRET_KEY` - Public secret key (same as above)
-- Database connection strings
-- Blockchain contract addresses
-#   W a g m i - B l a s t e r  
- 
+---
+
+## <i class="fa-solid fa-cloud-arrow-up"></i> Deploy
+Deploy to a serverless platform (e.g., Vercel). Set all environment variables and `NEXT_PUBLIC_URL` to the production domain for frame metadata.
+
+---
+
+## <i class="fa-solid fa-scale-balanced"></i> License
+MIT
+
+
