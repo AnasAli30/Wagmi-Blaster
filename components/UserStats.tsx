@@ -440,7 +440,7 @@ Oh, and btw — you can also join the WEEKLY REWARD CHALLENGE and earn up to $50
     try {
       // First, open the mini app
       await actions.openMiniApp({
-        url: "https://farcaster.xyz/miniapps/djk3nS-wYTQu/chain-crush"
+        url: "https://farcaster.xyz/miniapps/yfZqr7DiqHjC/taskpay"
       });
       
       // Then claim the mini app reward

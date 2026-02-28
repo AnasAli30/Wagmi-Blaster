@@ -3,6 +3,7 @@
 import { Demo } from '@/components/Home'
 import { useFrame } from '@/components/farcaster-provider'
 import { SafeAreaContainer } from '@/components/safe-area-container'
+import TaskpayBanner from '@/components/TaskpayBanner'
 import { WagmiProvider } from 'wagmi'
 import { config } from '@/components/wallet-provider'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -93,6 +94,7 @@ export default function Home() {
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <Demo />
+          <TaskpayBanner />
         </QueryClientProvider>
       </WagmiProvider>
     </SafeAreaContainer>
